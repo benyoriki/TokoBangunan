@@ -20,7 +20,7 @@ TB.ready(function () {
   if (demo.length) {
     const box = $('#demo-accounts'); box.hidden = false;
     const pwd = { owner: 'Owner#2026', kasir: 'Kasir#2026', admin: 'Stok#2026' };
-    box.innerHTML = '<b>Akun demo</b> <span class="muted">(hanya tampil selama password belum diganti)</span><table><thead><tr><th>Role</th><th>Email</th><th>Password</th><th></th></tr></thead><tbody>' + demo.map(function (u) { return '<tr><td>' + TB.ROLES[u.role].label + '</td><td>' + TB.esc(u.email) + '</td><td><span class="kbd">' + TB.esc(pwd[u.role] || '') + '</span></td><td><button class="btn btn-outline btn-sm" type="button" data-fill="' + TB.esc(u.email) + '" data-pw="' + TB.esc(pwd[u.role] || '') + '">Isi</button></td></tr>'; }).join('') + '</tbody></table>';
+    box.innerHTML = '<b>Akun demo</b> <span class="muted">(tampil selama password belum diganti)</span>' + demo.map(function (u) { return '<div class="acc"><div><b>' + TB.ROLES[u.role].label + '</b><span>' + TB.esc(u.email) + '</span><span><span class="kbd">' + TB.esc(pwd[u.role] || '') + '</span></span></div><button class="btn btn-outline btn-sm" type="button" data-fill="' + TB.esc(u.email) + '" data-pw="' + TB.esc(pwd[u.role] || '') + '">Isi</button></div>'; }).join('');
     box.addEventListener('click', function (e) { const b = e.target.closest('[data-fill]'); if (!b) return; $('#l-email').value = b.getAttribute('data-fill'); pw.value = b.getAttribute('data-pw'); $('#l-submit').focus(); });
   }
   TB.hydrate(document);

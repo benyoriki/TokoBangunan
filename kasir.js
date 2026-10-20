@@ -59,7 +59,7 @@ TB.ready(function () {
 
   /* ---- Pembayaran ---- */
   const methods = settings.payments.posMethods && settings.payments.posMethods.length ? settings.payments.posMethods : ['Tunai', 'QRIS', 'Transfer'];
-  $('#pos-methods').innerHTML = methods.map(function (m, i) { return '<label><input type="radio" name="pm" value="' + TB.esc(m) + '"' + (i === 0 ? ' checked' : '') + '>' + TB.esc(m) + '</label>'; }).join(''); method = methods[0];
+  $('#pos-methods').innerHTML = methods.map(function (m, i) { return '<label><input type="radio" name="pm" value="' + TB.esc(m) + '"' + (i === 0 ? ' checked' : '') + '>' + TB.esc(m) + '</label>'; }).join(''); method = methods[0]; TB.syncOpts();
   $('#pos-methods').addEventListener('change', function (e) { method = e.target.value; syncMethod(); });
   function syncMethod() { $('#pos-cash-box').hidden = method !== 'Tunai'; $('#pos-qris-box').hidden = method === 'Tunai'; $('#pos-show-qris').hidden = method !== 'QRIS'; $('#pos-paid-confirm').closest('label').lastChild.textContent = ' Pembayaran ' + method + ' sudah saya cek masuk'; }
   function calcChange() { const t = totals().total; const cash = parseFloat($('#pos-cash').value) || 0; $('#pos-change').textContent = TB.rp(Math.max(0, cash - t)); $('#pos-change').style.color = cash >= t && t > 0 ? 'var(--ok)' : 'inherit'; }

@@ -19,18 +19,25 @@
 <main id="page">
 
 <div class="login-wrap">
-  <div class="card login-card">
-    <a class="brand" href="index.html"><span data-logo="46"></span><div><b>TOKO BANGUNAN</b><small>Login Staf</small></div></a>
-    <h1 style="font-size:22px;text-align:center">Masuk ke Sistem</h1>
-    <form id="login-form" novalidate>
-      <label class="field"><span>Email</span><input class="input" type="email" id="l-email" autocomplete="username" required placeholder="nama@tokoanda.com"></label>
-      <label class="field"><span>Password</span><div class="pw-wrap"><input class="input" type="password" id="l-pass" autocomplete="current-password" required><button type="button" class="icon-btn" id="pw-toggle" aria-label="Tampilkan password"></button></div></label>
-      <p class="form-error" id="l-error" role="alert"></p>
-      <button class="btn btn-primary btn-lg btn-block" type="submit" id="l-submit">Masuk</button>
-    </form>
-    <div class="alert warn" style="margin-top:16px"><span data-ic="alert" data-size="18"></span><span><b>Prototipe:</b> login ini memakai LocalStorage untuk demonstrasi dan <b>bukan sistem keamanan produksi</b>. Gunakan Firebase Authentication atau server sebelum dipakai sungguhan.</span></div>
-    <div class="demo-accounts" id="demo-accounts" hidden></div>
-    <p class="center small" style="margin-top:14px"><a href="index.html">← Kembali ke toko</a></p>
+  <div class="login-split">
+    <div class="login-aside">
+      <h2>Kelola toko lebih cepat dan rapi.</h2>
+      <p>Satu sistem untuk kasir, stok, dan laporan penjualan.</p>
+      <ul><li>Kasir cepat dengan struk cetak</li><li>Stok tercatat: masuk, keluar, penjualan</li><li>Laporan omzet dan estimasi laba kotor</li></ul>
+    </div>
+    <div class="login-card">
+      <a class="brand" href="index.html"><span data-logo="46"></span><div><b>TOKO BANGUNAN</b><small>Login Staf</small></div></a>
+      <h1 style="font-size:24px">Masuk ke Sistem</h1>
+      <form id="login-form" novalidate>
+        <label class="field"><span>Email</span><input class="input" type="email" id="l-email" autocomplete="username" required placeholder="nama@tokoanda.com"></label>
+        <label class="field"><span>Password</span><div class="pw-wrap"><input class="input" type="password" id="l-pass" autocomplete="current-password" required><button type="button" class="icon-btn" id="pw-toggle" aria-label="Tampilkan password"></button></div></label>
+        <p class="form-error" id="l-error" role="alert"></p>
+        <button class="btn btn-primary btn-lg btn-block" type="submit" id="l-submit">Masuk</button>
+      </form>
+      <div class="alert warn" style="margin-top:16px"><span data-ic="alert" data-size="18"></span><span><b>Prototipe:</b> login ini memakai LocalStorage untuk demonstrasi dan <b>bukan sistem keamanan produksi</b>. Gunakan Firebase Authentication atau server sebelum dipakai sungguhan.</span></div>
+      <div class="demo-accounts" id="demo-accounts" hidden></div>
+      <p class="center small" style="margin-top:14px"><a href="index.html">← Kembali ke toko</a></p>
+    </div>
   </div>
 </div>
 

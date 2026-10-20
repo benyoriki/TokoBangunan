@@ -135,7 +135,7 @@ window.TB = window.TB || {};
     const type = (p && p.artType) || 'box', col = (p && p.artColor) || '#90a4ae', key = type + col;
     if (artCache[key]) return artCache[key];
     const shape = (SHAPES[type] || SHAPES.bag)(col);
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset="1" stop-color="#e6ebf1"/></linearGradient></defs><rect width="200" height="200" fill="url(#g)"/><ellipse cx="100" cy="176" rx="68" ry="8" fill="#000" fill-opacity=".1"/>' + shape + '</svg>';
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="' + shade(col, .93) + '"/><stop offset="1" stop-color="' + shade(col, .8) + '"/></linearGradient></defs><rect width="200" height="200" fill="url(#g)"/><ellipse cx="100" cy="176" rx="68" ry="8" fill="#000" fill-opacity=".1"/>' + shape + '</svg>';
     return (artCache[key] = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
   };
   TB.categoryImage = function (cat) { const m = { semen: 'bag:#c0392b', pasir: 'pile:#d7a85b', bata: 'brick:#c2562f', besi: 'rods:#37474f', keramik: 'tile:#b0a090', cat: 'paint:#1976d2', alat: 'tools:#ef6c00', sanitasi: 'pipe:#eceff1', elektrikal: 'bulb:#ffd54f', kayu: 'board:#c8a165', atap: 'roof:#c0392b' }[cat.id] || 'bag:#90a4ae'; const a = m.split(':'); return TB.productImage({ artType: a[0], artColor: a[1] }); };
@@ -197,6 +197,7 @@ window.TB = window.TB || {};
   store.saveTransaction = function (t) {
     if (!t || !t.id) throw new Error('Transaksi tidak valid');
     const list = store.getTransactions(); const i = list.findIndex(function (x) { return x.id === t.id; });
+    if (i >= 0 && list[i].clientRef !== t.clientRef) throw new Error('Nomor transaksi ' + t.id + ' sudah dipakai. Coba lagi.');
     if (i >= 0) list[i] = t; else list.push(t); writeKey(KEYS.transactions, list);
   };
   store.getStockMovements = function () { return arr(KEYS.movements); };
@@ -221,8 +222,11 @@ window.TB = window.TB || {};
     const l = store.getAudit(); l.push(Object.assign({ id: TB.uid('aud'), at: new Date().toISOString() }, entry)); writeKey(KEYS.audit, l.slice(-2000));
   };
   store.nextNumber = function (prefix) {
-    const c = readKey(KEYS.counters, {}) || {}; const key = TB.dateKey(new Date()).replace(/-/g, '').slice(2);
-    const k = prefix + key; c[k] = (c[k] || 0) + 1; writeKey(KEYS.counters, c);
+    const c = readKey(KEYS.counters, {}) || {}; const key = TB.dateKey(new Date()).replace(/-/g, '').slice(2); const k = prefix + key;
+    /* Nomor berikutnya = yang terbesar di antara penghitung dan transaksi tersimpan, +1 (anti-tabrakan) */
+    let max = c[k] || 0; const re = new RegExp('^' + prefix + '-' + key + '-(\\d+)$');
+    store.getTransactions().forEach(function (t) { const m = re.exec(t.id); if (m) max = Math.max(max, parseInt(m[1], 10)); });
+    c[k] = max + 1; writeKey(KEYS.counters, c);
     return prefix + '-' + key + '-' + String(c[k]).padStart(4, '0');
   };
   store.exportBackup = function () {
@@ -610,19 +614,18 @@ window.TB = window.TB || {};
   TB.renderPublicHeader = function (el, active) {
     const s = store.getSettings().store; const user = TB.auth && TB.auth.current();
     const links = [['index.html', 'Home', 'home', 'home'], ['katalog.html', 'Katalog', 'grid', 'katalog'], ['index.html#promo', 'Promo', 'tag', 'promo'], ['index.html#tentang', 'Tentang', 'info', 'tentang']];
-    el.innerHTML = '<header class="site-header"><div class="container hdr-row"><a class="brand" href="index.html" aria-label="' + TB.esc(s.name) + '">' + TB.logo(40) + '<div><b>' + TB.esc(s.name) + '</b><small>Mitra Pembangunan Anda</small></div></a>' +
+    el.innerHTML = '<header class="site-header"><div class="container hdr-row"><a class="brand" href="index.html" aria-label="' + TB.esc(s.name) + '">' + TB.logo(42) + '<div><b>' + TB.esc(s.name) + '</b><small>Mitra Pembangunan Anda</small></div></a>' +
       '<form class="hdr-search" role="search" id="hdr-search"><input type="search" class="input" id="hdr-q" placeholder="Cari semen, pasir, cat, besi, dll..." aria-label="Cari produk" autocomplete="off"><button type="submit" class="search-btn" aria-label="Cari">' + TB.icon('search', 18) + '</button></form>' +
       '<nav class="hdr-nav" id="hdr-nav" aria-label="Navigasi utama">' + links.map(function (l) { return '<a href="' + l[0] + '" class="' + (active === l[3] ? 'active' : '') + '">' + TB.icon(l[2], 18) + '<span>' + l[1] + '</span></a>'; }).join('') + '</nav>' +
       '<div class="hdr-actions">' + TB.themeButton() + '<a class="icon-btn cart-btn" href="keranjang.html" aria-label="Keranjang belanja">' + TB.icon('cart', 22) + '<span class="badge" id="cart-badge" hidden>0</span></a>' +
-      (user ? '<a class="btn btn-dark btn-sm hdr-login" href="' + TB.ROLES[user.role].home + '">' + TB.icon('user', 16) + '<span>' + TB.esc(user.name.split(' ')[0]) + '</span></a>' : '<a class="btn btn-dark btn-sm hdr-login" href="login.html">Login</a>') +
-      '<button class="icon-btn menu-btn" type="button" id="menu-btn" aria-label="Buka menu" aria-expanded="false">' + TB.icon('menu', 22) + '</button></div></div></header>';
+      (user ? '<a class="btn btn-dark btn-sm hdr-login" href="' + TB.ROLES[user.role].home + '">' + TB.icon('user', 16) + '<span>' + TB.esc(user.name.split(' ')[0]) + '</span></a>' : '<a class="btn btn-primary btn-sm hdr-login" href="login.html">Login</a>') + '</div></div></header>' +
+      '<nav class="bnav" aria-label="Menu bawah">' + [['index.html', 'Beranda', 'home', 'home'], ['katalog.html', 'Katalog', 'grid', 'katalog'], ['keranjang.html', 'Keranjang', 'cart', 'keranjang'], ['index.html#promo', 'Promo', 'tag', 'promo'], [user ? TB.ROLES[user.role].home : 'login.html', user ? 'Akun' : 'Login', 'user', 'login']].map(function (l) { return '<a href="' + l[0] + '" class="' + (active === l[3] ? 'active' : '') + '">' + TB.icon(l[2], 22) + '<span>' + l[1] + '</span>' + (l[3] === 'keranjang' ? '<span class="badge" id="cart-badge2" hidden>0</span>' : '') + '</a>'; }).join('') + '</nav>';
     TB.$('#hdr-search').addEventListener('submit', function (e) { e.preventDefault(); const q = TB.$('#hdr-q').value.trim(); location.href = 'katalog.html' + (q ? '?q=' + encodeURIComponent(q) : ''); });
     const q0 = TB.param('q'); if (q0 && TB.$('#hdr-q')) TB.$('#hdr-q').value = q0;
-    TB.$('#menu-btn').addEventListener('click', function () { const nav = TB.$('#hdr-nav'); const open = nav.classList.toggle('open'); this.setAttribute('aria-expanded', open ? 'true' : 'false'); });
     TB.updateCartBadge();
   };
   TB.updateCartBadge = function () {
-    const b = document.getElementById('cart-badge'); if (!b) return; const n = store.getCart().length; b.textContent = n > 99 ? '99+' : n; b.hidden = n === 0;
+    const n = store.getCart().length; ['cart-badge', 'cart-badge2'].forEach(function (id) { const b = document.getElementById(id); if (b) { b.textContent = n > 99 ? '99+' : n; b.hidden = n === 0; } });
   };
   TB.on('cart', TB.updateCartBadge);
 
@@ -641,7 +644,7 @@ window.TB = window.TB || {};
     TB.$('#side-open').addEventListener('click', function () { dash.classList.add('side-open'); }); TB.$('#side-close').addEventListener('click', closeSide); TB.$('#dash-scrim').addEventListener('click', closeSide);
     function out() { TB.auth.logout(); location.href = 'login.html'; } TB.$('#logout-btn').addEventListener('click', out); TB.$('#logout-top').addEventListener('click', out); TB.$('#chgpw-btn').addEventListener('click', function () { TB.auth.openChangePassword(); });
     if (TB.param('denied')) { TB.toast('Anda tidak punya akses ke halaman tersebut.', 'error'); }
-    if (user.mustChange) { TB.toast('Anda masih memakai password demo. Segera ganti lewat menu "Ganti Password".', 'info'); }
+    if (user.mustChange && !sessionStorage.getItem('tb_pwnote')) { try { sessionStorage.setItem('tb_pwnote', '1'); } catch (e) { /* abaikan */ } TB.toast('Anda masih memakai password demo. Segera ganti lewat menu "Ganti Password".', 'info'); }
     function tick() { const el = TB.$('#top-clock'); if (el) el.textContent = new Date().toLocaleString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } tick(); setInterval(tick, 30000);
   };
 
@@ -701,6 +704,10 @@ window.TB = window.TB || {};
   };
 
 
+  /* Penanda pilihan radio (pengganti :has() agar jalan di browser lama / Windows 7) */
+  TB.syncOpts = function () { TB.$$('label.opt, .pay-methods label').forEach(function (l) { const i = l.querySelector('input'); if (i) l.classList.toggle('sel', i.checked); }); };
+  document.addEventListener('change', function (e) { if (e.target && e.target.type === 'radio') TB.syncOpts(); });
+
   /* ---------------- Inisialisasi halaman ---------------- */
   const readyQueue = []; let isReady = false;
   TB.ready = function (fn) { if (isReady) fn(); else readyQueue.push(fn); };
@@ -725,8 +732,9 @@ window.TB = window.TB || {};
     const shell = body.getAttribute('data-shell');
     if (shell === 'public') { TB.renderPublicHeader(TB.$('#site-header'), body.getAttribute('data-active')); TB.renderFooter(TB.$('#site-footer')); }
     if (shell === 'dash') TB.renderDash({ title: body.getAttribute('data-title') });
+    TB.theme.set(TB.theme.get());
     body.classList.remove('guard-pending');
-    TB.hydrate(document);
+    TB.hydrate(document); TB.syncOpts();
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) { navigator.serviceWorker.register('sw.js').catch(function () { /* opsional */ }); }
     store.errors.splice(0).forEach(function (m) { TB.toast(m, 'error'); });
     isReady = true; readyQueue.splice(0).forEach(function (f) { try { f(); } catch (e) { console.error(e); TB.toast('Terjadi kesalahan: ' + e.message, 'error'); } });

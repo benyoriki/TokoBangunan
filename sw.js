@@ -1,6 +1,6 @@
 /* sw.js — Service worker sederhana (opsional): cache aset statis agar cepat & bisa dibuka offline.
    Data toko tetap di LocalStorage. Naikkan VERSION saat memperbarui file agar cache diganti. */
-const VERSION = 'tb-v1.0.0';
+const VERSION = 'tb-v1.1.0';
 const ASSETS = ['./', 'index.html', 'katalog.html', 'keranjang.html', 'login.html', 'kasir.html', 'admin-stok.html', 'owner.html', 'laporan.html', 'pengaturan.html',
   'style.css', 'responsive.css', 'app.js', 'data.js', 'auth.js', 'home.js', 'katalog.js', 'keranjang.js', 'login.js', 'kasir.js', 'admin-stok.js', 'owner.js', 'laporan.js', 'pengaturan.js',
   'qris.png', 'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.json'];

@@ -172,7 +172,7 @@ TB.buildDemoTransactions = function (products) {
   const counters = {};
   for (let d = 24; d >= 0; d--) {
     const day = new Date(today.getTime() - d * 864e5);
-    const n = 5 + Math.floor(rnd() * 8) + (d === 0 ? -2 : 0);
+    const n = 5 + Math.floor(rnd() * 8) + (d === 0 ? -1 : 0);
     for (let t = 0; t < n; t++) {
       const items = []; const k = 1 + Math.floor(rnd() * 3);
       const used = {};
@@ -186,7 +186,7 @@ TB.buildDemoTransactions = function (products) {
       const disc = TB.calcDiscount(subtotal, TB.DEFAULT_SETTINGS.discountRules);
       const ship = rnd() > 0.78 ? [25000, 60000, 120000][Math.floor(rnd() * 3)] : 0;
       const total = subtotal - disc.amount + ship;
-      const when = new Date(day.getTime() + (7.5 + rnd() * 9) * 36e5);
+      const nowH = (Date.now() - today.getTime()) / 36e5; const when = new Date(day.getTime() + (d === 0 ? 6.5 + rnd() * Math.max(0.3, nowH - 6.6) : 7.5 + rnd() * 9) * 36e5);
       if (when > new Date()) continue;
       const method = methods[Math.floor(rnd() * methods.length)];
       const key = TB.dateKey(when).replace(/-/g, '').slice(2);

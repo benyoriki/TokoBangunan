@@ -54,7 +54,7 @@ TB.ready(function () {
   function renderPay() {
     const opts = payAllowed(); if (!opts.some(function (o) { return o.id === state.pay && !o.disabled; })) state.pay = (opts.find(function (o) { return !o.disabled; }) || {}).id || '';
     $('#pay-options').innerHTML = opts.length ? opts.map(function (o) { return '<label class="opt' + (o.disabled ? ' disabled' : '') + '"><input type="radio" name="pay" value="' + o.id + '"' + (state.pay === o.id ? ' checked' : '') + (o.disabled ? ' disabled' : '') + '><span><b>' + o.title + '</b><small>' + TB.esc(o.desc) + (o.why ? ' <i>(' + o.why + ')</i>' : '') + '</small></span></label>'; }).join('') : '<div class="alert warn">Belum ada metode pembayaran aktif. Hubungi toko.</div>';
-    renderQris();
+    renderQris(); TB.syncOpts();
   }
   function totals() { return TB.calcTotals(TB.cart.lines(), { method: state.method, zoneId: state.zone }, settings); }
   function renderQris() {
@@ -79,7 +79,7 @@ TB.ready(function () {
   }
   function renderMode() {
     const pick = state.method === 'pickup'; $('#zone-box').hidden = pick; $('#addr-field').hidden = pick;
-    renderShipOptions(); renderPay(); renderSummary();
+    renderShipOptions(); renderPay(); renderSummary(); TB.syncOpts();
   }
 
   /* ---- Event ---- */
@@ -97,7 +97,7 @@ TB.ready(function () {
   $('#c-zone').addEventListener('change', function () { state.zone = this.value; renderPay(); renderSummary(); });
   $('#pay-options').addEventListener('change', function (e) { if (e.target.name === 'pay') { state.pay = e.target.value; renderQris(); } });
 
-  function refresh() { renderItems(); renderShipOptions(); renderPay(); renderSummary(); TB.hydrate(document); if (!TB.cart.lines().length) $('#btn-order').disabled = true; }
+  function refresh() { renderItems(); renderShipOptions(); renderPay(); renderSummary(); TB.syncOpts(); TB.hydrate(document); if (!TB.cart.lines().length) $('#btn-order').disabled = true; }
 
   $('#btn-order').addEventListener('click', function () {
     if (busy) return; const err = $('#co-error'); err.textContent = '';

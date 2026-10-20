@@ -3,12 +3,16 @@ TB.ready(function () {
   'use strict';
   const products = TB.store.getProducts().filter(function (p) { return p.active; });
   const cats = TB.store.getCategories();
-  TB.$('#hero-img').src = TB.CONFIG.HERO_IMAGE || TB.heroImage();
-  if (TB.CONFIG.HERO_IMAGE) TB.$('#hero-img').onerror = function () { this.onerror = null; this.src = TB.heroImage(); };
   TB.warnDemo(TB.$('#demo-banner'));
 
-  const badges = [['tag', 'Harga Terbaik'], ['layers', 'Stok Terpantau'], ['truck', 'Pengiriman Material'], ['store', 'Melayani Ecer & Grosir']];
-  TB.$('#hero-badges').innerHTML = badges.map(function (b) { return '<span><span class="ic-wrap">' + TB.icon(b[0], 18) + '</span>' + b[1] + '</span>'; }).join('');
+  /* Hero: produk pilihan (data nyata dari toko) */
+  const pick = products.filter(function (p) { return p.featured && p.stock > 0; }).slice(0, 4);
+  TB.$('#hero-art').insertAdjacentHTML('afterbegin', pick.map(function (p) {
+    return '<a class="hero-tile" href="katalog.html?q=' + encodeURIComponent(p.name) + '"><img src="' + TB.productImage(p) + '" alt="' + TB.esc(p.name) + '" width="200" height="200"><b>' + TB.esc(p.name) + '</b><span>' + TB.rp(TB.effPrice(p)) + '</span></a>';
+  }).join(''));
+
+  const feats = [['tag', 'Harga Terbaik', 'Harga transparan, promo jelas'], ['layers', 'Stok Terpantau', 'Tidak oversell, stok real-time'], ['truck', 'Pengiriman Material', 'Pickup hingga truk ke lokasi'], ['store', 'Ecer & Grosir', 'Melayani semua kebutuhan']];
+  TB.$('#feat-strip').innerHTML = feats.map(function (f) { return '<div class="feat"><span class="ic-wrap">' + TB.icon(f[0], 22) + '</span><div><b>' + f[1] + '</b><small>' + f[2] + '</small></div></div>'; }).join('');
 
   const promos = products.filter(TB.isPromo).sort(function (a, b) { return TB.promoPct(b) - TB.promoPct(a); });
   if (promos.length) {
