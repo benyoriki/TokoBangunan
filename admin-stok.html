@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Admin Stok — TOKO BANGUNAN</title>
+<meta name="description" content="Inventaris dan pengelolaan stok toko bangunan.">
+<meta name="theme-color" content="#0b2a4a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>(function(){try{var t=localStorage.getItem('tb_theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(sessionStorage.getItem('tb_loaded')){document.documentElement.classList.add('no-loader')}else{document.documentElement.classList.add('loading')}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="responsive.css">
+</head>
+<body class="guard-pending" data-shell="dash" data-title="Admin Stok & Inventaris" data-roles="admin,owner">
+<div id="tb-loader" role="status" aria-live="polite" aria-label="Memuat TOKO BANGUNAN"><div class="ld-box"><div class="ld-logo"><svg width="84" height="84" viewBox="0 0 64 64" role="img" aria-label="Logo TOKO BANGUNAN"><rect width="64" height="64" rx="14" fill="#f26b1d"/><path d="M8 31L32 11l24 20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 29v23h34V29" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><rect x="21" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="33" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="27" y="44" width="10" height="6" rx="1" fill="#0b2a4a"/></svg></div><b>TOKO BANGUNAN</b><div class="ld-sub">Mitra Pembangunan Anda</div><div class="ld-bar"><i></i></div><small>Memuat sistem…</small></div></div>
+<div class="dash" id="dash"><aside class="dash-side" id="dash-side"></aside><div class="dash-scrim" id="dash-scrim"></div><div class="dash-body"><header class="dash-top" id="dash-top"></header>
+<main class="dash-main" id="page">
+
+<div class="stat-grid" id="stok-stats"></div>
+<div class="tabs" role="tablist" id="stok-tabs"><button role="tab" data-tab="inventaris" class="active">Inventaris</button><button role="tab" data-tab="mutasi">Stok Masuk / Keluar</button><button role="tab" data-tab="riwayat">Riwayat Stok</button><button role="tab" data-tab="kategori">Kategori & Satuan</button></div>
+<section id="tab-inventaris">
+  <div class="filter-bar">
+    <label class="field grow"><span>Cari (SKU / nama / merek)</span><input class="input" type="search" id="inv-q" placeholder="Cari barang…"></label>
+    <label class="field"><span>Kategori</span><select class="input" id="inv-cat"></select></label>
+    <label class="field"><span>Status stok</span><select class="input" id="inv-status"><option value="">Semua</option><option value="ok">Tersedia</option><option value="low">Menipis</option><option value="out">Habis</option><option value="inactive">Nonaktif</option></select></label>
+    <button class="btn btn-primary" id="inv-add" type="button"><span data-ic="plus" data-size="18"></span> Tambah Produk</button>
+    <button class="btn btn-outline" id="inv-csv" type="button"><span data-ic="download" data-size="18"></span> Ekspor CSV</button>
+  </div>
+  <div class="tbl-wrap"><table class="tbl cards-sm" id="inv-table"><thead><tr><th class="sortable" data-sort="sku">SKU</th><th class="sortable" data-sort="name">Nama Barang</th><th class="sortable" data-sort="category">Kategori</th><th>Satuan</th><th class="num sortable" data-sort="stock">Stok</th><th class="num sortable" data-sort="cost">Harga Modal</th><th class="num sortable" data-sort="price">Harga Jual</th><th>Status</th><th class="actions">Aksi</th></tr></thead><tbody id="inv-body"></tbody></table></div>
+  <div class="pager" id="inv-pager"></div>
+</section>
+<section id="tab-mutasi" hidden>
+  <div class="grid-2e">
+    <div class="card panel"><h3>Catat Stok Masuk</h3><form id="form-in" novalidate>
+      <label class="field"><span>Produk *</span><select class="input" id="in-prod"></select></label>
+      <div class="form-grid"><label class="field"><span>Jumlah masuk *</span><input class="input" type="number" min="0" step="any" id="in-qty" inputmode="decimal"></label><label class="field"><span>Satuan</span><input class="input" id="in-unit" disabled></label></div>
+      <label class="field"><span>Alasan / keterangan *</span><input class="input" id="in-reason" placeholder="Contoh: Pembelian dari supplier PT Abadi, nota 123"></label>
+      <p class="form-error" id="in-err" role="alert"></p><button class="btn btn-ok" type="submit">Simpan Stok Masuk</button></form></div>
+    <div class="card panel"><h3>Catat Stok Keluar</h3><form id="form-out" novalidate>
+      <label class="field"><span>Produk *</span><select class="input" id="out-prod"></select></label>
+      <div class="form-grid"><label class="field"><span>Jumlah keluar *</span><input class="input" type="number" min="0" step="any" id="out-qty" inputmode="decimal"></label><label class="field"><span>Stok tersedia</span><input class="input" id="out-avail" disabled></label></div>
+      <label class="field"><span>Alasan / keterangan *</span><input class="input" id="out-reason" placeholder="Contoh: Rusak/pecah, retur supplier, pemakaian toko"></label>
+      <p class="form-error" id="out-err" role="alert"></p><button class="btn btn-danger" type="submit">Simpan Stok Keluar</button></form></div>
+  </div>
+  <div class="alert info"><span data-ic="info" data-size="18"></span><span>Penjualan kasir dan pesanan online mengurangi stok otomatis. Gunakan form ini hanya untuk stok masuk, keluar non-penjualan, dan koreksi hasil opname. Setiap perubahan mencatat waktu, jumlah, alasan, dan pengguna.</span></div>
+  <div class="card panel"><h3>Koreksi Stok (Opname)</h3><form id="form-fix" novalidate class="filter-bar" style="margin:0">
+    <label class="field grow"><span>Produk</span><select class="input" id="fix-prod"></select></label>
+    <label class="field"><span>Stok hasil hitung fisik</span><input class="input" type="number" min="0" step="any" id="fix-qty"></label>
+    <label class="field grow"><span>Alasan *</span><input class="input" id="fix-reason" placeholder="Contoh: Opname bulanan"></label>
+    <button class="btn btn-outline" type="submit">Terapkan Koreksi</button></form><p class="form-error" id="fix-err" role="alert"></p></div>
+</section>
+<section id="tab-riwayat" hidden>
+  <div class="filter-bar"><label class="field grow"><span>Cari produk / alasan</span><input class="input" type="search" id="mv-q"></label>
+    <label class="field"><span>Jenis</span><select class="input" id="mv-type"><option value="">Semua</option><option value="masuk">Masuk</option><option value="keluar">Keluar</option><option value="koreksi">Koreksi</option><option value="penjualan">Penjualan kasir</option><option value="pesanan">Pesanan online</option><option value="pembatalan">Pembatalan</option></select></label>
+    <button class="btn btn-outline" id="mv-csv" type="button"><span data-ic="download" data-size="18"></span> Ekspor CSV</button></div>
+  <div class="tbl-wrap"><table class="tbl cards-sm"><thead><tr><th>Waktu</th><th>SKU</th><th>Produk</th><th>Jenis</th><th class="num">Jumlah</th><th class="num">Sebelum → Sesudah</th><th>Alasan</th><th>Pengguna</th></tr></thead><tbody id="mv-body"></tbody></table></div>
+  <div class="pager" id="mv-pager"></div>
+</section>
+<section id="tab-kategori" hidden>
+  <div class="grid-2e">
+    <div class="card panel"><h3>Kategori</h3><div id="cat-list"></div>
+      <form id="form-cat" class="filter-bar" style="margin:12px 0 0"><label class="field grow"><span>Nama kategori baru</span><input class="input" id="cat-name" placeholder="Contoh: Perlengkapan Taman"></label><button class="btn btn-primary" type="submit">Tambah</button></form><p class="form-error" id="cat-err" role="alert"></p></div>
+    <div class="card panel"><h3>Satuan</h3><div id="unit-list" class="chips"></div>
+      <form id="form-unit" class="filter-bar" style="margin:12px 0 0"><label class="field grow"><span>Satuan baru</span><input class="input" id="unit-name" placeholder="Contoh: bundle"></label><button class="btn btn-primary" type="submit">Tambah</button></form><p class="form-error" id="unit-err" role="alert"></p></div>
+  </div>
+</section>
+
+</main>
+<div id="dash-foot"></div></div></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
+<script src="admin-stok.js"></script>
+</body>
+</html>

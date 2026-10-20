@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katalog Produk — TOKO BANGUNAN</title>
+<meta name="description" content="Katalog lengkap material bangunan: cari dan filter berdasarkan kategori, harga, merek, dan stok.">
+<meta name="theme-color" content="#0b2a4a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>(function(){try{var t=localStorage.getItem('tb_theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(sessionStorage.getItem('tb_loaded')){document.documentElement.classList.add('no-loader')}else{document.documentElement.classList.add('loading')}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="responsive.css">
+</head>
+<body data-shell="public" data-active="katalog">
+<div id="tb-loader" role="status" aria-live="polite" aria-label="Memuat TOKO BANGUNAN"><div class="ld-box"><div class="ld-logo"><svg width="84" height="84" viewBox="0 0 64 64" role="img" aria-label="Logo TOKO BANGUNAN"><rect width="64" height="64" rx="14" fill="#f26b1d"/><path d="M8 31L32 11l24 20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 29v23h34V29" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><rect x="21" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="33" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="27" y="44" width="10" height="6" rx="1" fill="#0b2a4a"/></svg></div><b>TOKO BANGUNAN</b><div class="ld-sub">Mitra Pembangunan Anda</div><div class="ld-bar"><i></i></div><small>Memuat sistem…</small></div></div>
+<div id="site-header"></div>
+<main id="page">
+
+<div class="container">
+  <div class="sec-head" style="padding-top:24px;margin-bottom:0"><div><h1 style="font-size:28px;margin:0">Katalog Produk</h1><p id="cat-count" class="muted" aria-live="polite"></p></div></div>
+  <div id="demo-banner"></div>
+  <div class="cat-layout">
+    <details class="card filters" id="filters" open>
+      <summary style="cursor:pointer;font-weight:800;font-size:16px;margin-bottom:12px">Filter Produk</summary>
+      <label class="field"><span>Cari produk</span><input class="input" type="search" id="f-q" placeholder="Nama, SKU, merek…" autocomplete="off"></label>
+      <label class="field"><span>Kategori</span><select class="input" id="f-cat"></select></label>
+      <label class="field"><span>Merek</span><select class="input" id="f-brand"></select></label>
+      <div class="form-grid" style="gap:0 10px">
+        <label class="field"><span>Harga min (Rp)</span><input class="input" type="number" min="0" step="1000" id="f-min" inputmode="numeric"></label>
+        <label class="field"><span>Harga maks (Rp)</span><input class="input" type="number" min="0" step="1000" id="f-max" inputmode="numeric"></label>
+      </div>
+      <label class="field"><span>Ketersediaan stok</span><select class="input" id="f-stock"><option value="">Semua</option><option value="ok">Tersedia</option><option value="low">Stok menipis</option><option value="out">Stok habis</option></select></label>
+      <label class="check" style="margin-bottom:16px"><input type="checkbox" id="f-promo"> Hanya produk promo</label>
+      <button class="btn btn-outline btn-block" id="f-reset" type="button">Reset Filter</button>
+    </details>
+    <section aria-label="Daftar produk">
+      <div class="toolbar">
+        <div class="chips" id="cat-chips" style="margin:0"></div>
+        <label class="field" style="margin:0;min-width:200px"><span class="sr-only">Urutkan</span>
+          <select class="input" id="f-sort"><option value="rel">Urutkan: Unggulan</option><option value="low">Harga terendah</option><option value="high">Harga tertinggi</option><option value="name">Nama A–Z</option><option value="stock">Stok terbanyak</option></select></label>
+      </div>
+      <div class="prod-grid" id="prod-grid" aria-live="polite"></div>
+      <div class="pager" id="pager"></div>
+    </section>
+  </div>
+</div>
+
+</main>
+<div id="site-footer"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
+<script src="katalog.js"></script>
+</body>
+</html>

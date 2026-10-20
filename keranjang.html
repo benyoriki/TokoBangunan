@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keranjang & Checkout — TOKO BANGUNAN</title>
+<meta name="description" content="Keranjang belanja, pilihan pengiriman material, pembayaran QRIS/COD, dan pesanan via WhatsApp.">
+<meta name="theme-color" content="#0b2a4a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>(function(){try{var t=localStorage.getItem('tb_theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(sessionStorage.getItem('tb_loaded')){document.documentElement.classList.add('no-loader')}else{document.documentElement.classList.add('loading')}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="responsive.css">
+</head>
+<body data-shell="public" data-active="keranjang">
+<div id="tb-loader" role="status" aria-live="polite" aria-label="Memuat TOKO BANGUNAN"><div class="ld-box"><div class="ld-logo"><svg width="84" height="84" viewBox="0 0 64 64" role="img" aria-label="Logo TOKO BANGUNAN"><rect width="64" height="64" rx="14" fill="#f26b1d"/><path d="M8 31L32 11l24 20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 29v23h34V29" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><rect x="21" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="33" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="27" y="44" width="10" height="6" rx="1" fill="#0b2a4a"/></svg></div><b>TOKO BANGUNAN</b><div class="ld-sub">Mitra Pembangunan Anda</div><div class="ld-bar"><i></i></div><small>Memuat sistem…</small></div></div>
+<div id="site-header"></div>
+<main id="page">
+
+<div class="container" id="cart-root">
+  <div class="sec-head" style="padding-top:24px;margin-bottom:0"><div><h1 style="font-size:28px;margin:0">Keranjang & Checkout</h1></div></div>
+  <div id="demo-banner"></div>
+  <div class="steps" aria-label="Langkah"><span class="on">1. Keranjang</span><span class="on">2. Data & Pengiriman</span><span>3. Pembayaran</span><span>4. Konfirmasi WhatsApp</span></div>
+  <div class="cart-layout" id="cart-layout">
+    <div>
+      <section class="card" style="margin-bottom:18px" aria-label="Isi keranjang"><div id="cart-items"></div></section>
+      <form id="checkout-form" novalidate autocomplete="on">
+        <section class="card card-pad" style="margin-bottom:18px">
+          <h3>Data Penerima</h3>
+          <div class="form-grid">
+            <label class="field"><span>Nama penerima *</span><input class="input" id="c-name" name="name" required autocomplete="name"></label>
+            <label class="field"><span>Nomor WhatsApp *</span><input class="input" id="c-phone" name="tel" inputmode="tel" placeholder="081234567890" required autocomplete="tel"></label>
+          </div>
+          <label class="field" id="addr-field"><span>Alamat lengkap pengiriman *</span><textarea class="input" id="c-addr" name="address" placeholder="Jalan, nomor, RT/RW, kelurahan, kecamatan, patokan lokasi" autocomplete="street-address"></textarea></label>
+          <label class="field"><span>Catatan pesanan</span><textarea class="input" id="c-notes" placeholder="Contoh: jam pengiriman, akses jalan truk, merek khusus"></textarea></label>
+        </section>
+        <section class="card card-pad" style="margin-bottom:18px">
+          <h3>Pengiriman</h3>
+          <div id="ship-options"></div>
+          <div id="zone-box" hidden>
+            <label class="field"><span>Zona / jarak pengiriman *</span><select class="input" id="c-zone"></select><span class="hint" id="zone-hint"></span></label>
+            <div id="ship-detail" class="alert info" hidden></div>
+          </div>
+        </section>
+        <section class="card card-pad" style="margin-bottom:18px">
+          <h3>Metode Pembayaran</h3>
+          <div id="pay-options"></div>
+          <div id="qris-preview" class="qris-box" hidden></div>
+        </section>
+      </form>
+    </div>
+    <aside class="card card-pad" style="position:sticky;top:84px" aria-label="Ringkasan pesanan">
+      <h3>Ringkasan Pesanan</h3>
+      <div id="summary"></div>
+      <p class="form-error" id="co-error" role="alert"></p>
+      <button class="btn btn-primary btn-lg btn-block" id="btn-order" type="button">Buat Pesanan</button>
+      <p class="small muted" style="margin-top:10px">Pesanan dicatat di browser ini dan dikirim ke toko lewat WhatsApp. Pesanan belum final sampai dikonfirmasi toko.</p>
+    </aside>
+  </div>
+  <div id="order-done" hidden></div>
+</div>
+
+</main>
+<div id="site-footer"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
+<script src="keranjang.js"></script>
+</body>
+</html>

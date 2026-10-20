@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Kasir — TOKO BANGUNAN</title>
+<meta name="description" content="Transaksi kasir cepat untuk toko bangunan.">
+<meta name="theme-color" content="#0b2a4a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>(function(){try{var t=localStorage.getItem('tb_theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(sessionStorage.getItem('tb_loaded')){document.documentElement.classList.add('no-loader')}else{document.documentElement.classList.add('loading')}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="responsive.css">
+</head>
+<body class="guard-pending" data-shell="dash" data-title="Dashboard Kasir" data-roles="kasir,owner">
+<div id="tb-loader" role="status" aria-live="polite" aria-label="Memuat TOKO BANGUNAN"><div class="ld-box"><div class="ld-logo"><svg width="84" height="84" viewBox="0 0 64 64" role="img" aria-label="Logo TOKO BANGUNAN"><rect width="64" height="64" rx="14" fill="#f26b1d"/><path d="M8 31L32 11l24 20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 29v23h34V29" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><rect x="21" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="33" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="27" y="44" width="10" height="6" rx="1" fill="#0b2a4a"/></svg></div><b>TOKO BANGUNAN</b><div class="ld-sub">Mitra Pembangunan Anda</div><div class="ld-bar"><i></i></div><small>Memuat sistem…</small></div></div>
+<div class="dash" id="dash"><aside class="dash-side" id="dash-side"></aside><div class="dash-scrim" id="dash-scrim"></div><div class="dash-body"><header class="dash-top" id="dash-top"></header>
+<main class="dash-main" id="page">
+
+<div class="tabs" role="tablist" id="kasir-tabs"><button role="tab" data-tab="pos" class="active">Transaksi Baru</button><button role="tab" data-tab="riwayat">Riwayat Transaksi</button></div>
+<section id="tab-pos">
+  <div class="pos" id="pos">
+    <div>
+      <div class="filter-bar">
+        <label class="field grow"><span>Cari produk (nama / SKU / merek)</span><input class="input" type="search" id="pos-q" placeholder="Ketik untuk mencari…" autocomplete="off"></label>
+        <label class="field"><span>Kategori</span><select class="input" id="pos-cat"></select></label>
+      </div>
+      <div class="pos-grid" id="pos-grid"></div>
+    </div>
+    <aside class="card pos-cart" id="pos-cart" aria-label="Keranjang transaksi">
+      <h3><span>Keranjang Transaksi</span><button class="btn btn-ghost btn-sm" id="pos-clear" type="button">Kosongkan</button></h3>
+      <div class="pos-lines" id="pos-lines"></div>
+      <div class="pos-pay">
+        <label class="field" style="margin-bottom:8px"><span>Nama pelanggan (opsional)</span><input class="input" id="pos-cust" placeholder="Pelanggan Umum"></label>
+        <div class="sum-row"><span>Subtotal</span><b id="pos-sub">Rp0</b></div>
+        <div class="sum-row disc" id="pos-disc-row" hidden><span id="pos-disc-label">Diskon</span><b id="pos-disc">-Rp0</b></div>
+        <div class="sum-row total"><span>Total</span><span id="pos-total">Rp0</span></div>
+        <div class="pay-methods" id="pos-methods"></div>
+        <div id="pos-cash-box"><label class="field" style="margin:6px 0"><span>Uang diterima (Rp)</span><input class="input" type="number" min="0" step="500" inputmode="numeric" id="pos-cash"></label>
+          <div class="sum-row"><span>Kembalian</span><b id="pos-change">Rp0</b></div></div>
+        <div id="pos-qris-box" hidden><button class="btn btn-outline btn-block btn-sm" id="pos-show-qris" type="button">Tampilkan QRIS Toko</button>
+          <label class="check" style="margin-top:8px"><input type="checkbox" id="pos-paid-confirm"> Pembayaran sudah saya cek masuk</label></div>
+        <p class="form-error" id="pos-error" role="alert"></p>
+        <button class="btn btn-primary btn-lg btn-block" id="pos-pay" type="button">Proses Pembayaran</button>
+      </div>
+    </aside>
+  </div>
+  <button class="btn btn-primary btn-lg pos-fab" id="pos-fab" type="button"><span data-ic="cart"></span> <span id="pos-fab-label">Keranjang (0)</span></button>
+</section>
+<section id="tab-riwayat" hidden>
+  <div class="filter-bar">
+    <label class="field"><span>Dari tanggal</span><input class="input" type="date" id="rw-from"></label>
+    <label class="field"><span>Sampai</span><input class="input" type="date" id="rw-to"></label>
+    <label class="field grow"><span>Cari nomor / pelanggan</span><input class="input" type="search" id="rw-q" placeholder="TRX-…"></label>
+    <label class="field"><span>Jenis</span><select class="input" id="rw-type"><option value="">Semua</option><option value="pos">Kasir</option><option value="online">Pesanan online</option></select></label>
+  </div>
+  <div id="rw-note" class="small muted" style="margin-bottom:8px"></div>
+  <div class="tbl-wrap"><table class="tbl cards-sm"><thead><tr><th>No. Transaksi</th><th>Waktu</th><th>Pelanggan</th><th>Metode</th><th class="num">Total</th><th>Status</th><th></th></tr></thead><tbody id="rw-body"></tbody></table></div>
+  <div class="pager" id="rw-pager"></div>
+</section>
+
+</main>
+<div id="dash-foot"></div></div></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
+<script src="kasir.js"></script>
+</body>
+</html>

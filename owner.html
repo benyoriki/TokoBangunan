@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Owner — TOKO BANGUNAN</title>
+<meta name="description" content="Dashboard analitik penjualan dan stok untuk pemilik toko bangunan.">
+<meta name="theme-color" content="#0b2a4a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>(function(){try{var t=localStorage.getItem('tb_theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(sessionStorage.getItem('tb_loaded')){document.documentElement.classList.add('no-loader')}else{document.documentElement.classList.add('loading')}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="responsive.css">
+</head>
+<body class="guard-pending" data-shell="dash" data-title="Dashboard Owner" data-roles="owner">
+<div id="tb-loader" role="status" aria-live="polite" aria-label="Memuat TOKO BANGUNAN"><div class="ld-box"><div class="ld-logo"><svg width="84" height="84" viewBox="0 0 64 64" role="img" aria-label="Logo TOKO BANGUNAN"><rect width="64" height="64" rx="14" fill="#f26b1d"/><path d="M8 31L32 11l24 20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 29v23h34V29" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><rect x="21" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="33" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="27" y="44" width="10" height="6" rx="1" fill="#0b2a4a"/></svg></div><b>TOKO BANGUNAN</b><div class="ld-sub">Mitra Pembangunan Anda</div><div class="ld-bar"><i></i></div><small>Memuat sistem…</small></div></div>
+<div class="dash" id="dash"><aside class="dash-side" id="dash-side"></aside><div class="dash-scrim" id="dash-scrim"></div><div class="dash-body"><header class="dash-top" id="dash-top"></header>
+<main class="dash-main" id="page">
+
+<div id="demo-banner"></div>
+<div class="filter-bar">
+  <label class="field"><span>Dari tanggal</span><input class="input" type="date" id="o-from"></label>
+  <label class="field"><span>Sampai tanggal</span><input class="input" type="date" id="o-to"></label>
+  <div class="chips" id="o-presets" style="margin:0"><button class="chip" data-p="today">Hari ini</button><button class="chip" data-p="7">7 hari</button><button class="chip active" data-p="14">14 hari</button><button class="chip" data-p="30">30 hari</button><button class="chip" data-p="month">Bulan ini</button></div>
+</div>
+<div class="stat-grid" id="o-stats"></div>
+<div class="alert info small"><span data-ic="info" data-size="18"></span><span><b>Catatan angka:</b> <b>Omzet</b> = penjualan barang setelah diskon (di luar ongkir, tanpa transaksi batal). <b>Laba kotor</b> = omzet − modal barang terjual (bukan laba bersih: biaya operasional belum dicatat). <b>Arus kas masuk</b> = hanya transaksi berstatus Lunas, termasuk ongkir.</span></div>
+<div class="grid-2">
+  <div class="card panel"><h3><span>Grafik Penjualan Harian</span><span class="legend"><span><i style="background:var(--orange)"></i>Periode ini</span><span><i style="background:#8aa4c4"></i>Periode sebelumnya</span></span></h3><div id="o-chart"></div><div id="o-compare" class="small muted" style="margin-top:8px"></div></div>
+  <div class="card panel"><h3>Metode Pembayaran</h3><div id="o-methods"></div></div>
+</div>
+<div class="grid-2e">
+  <div class="card panel"><h3>Produk Terlaris</h3><ol class="rank" id="o-top"></ol></div>
+  <div class="card panel"><h3><span>Stok Menipis / Habis</span><a class="link-more small" href="admin-stok.html">Kelola stok</a></div>
+    <div id="o-low"></div></div>
+</div>
+<div class="card panel"><h3><span>Transaksi Terbaru</span><a class="link-more small" href="laporan.html#transaksi">Semua transaksi</a></h3>
+  <div class="tbl-wrap"><table class="tbl cards-sm"><thead><tr><th>No.</th><th>Waktu</th><th>Pelanggan</th><th>Metode</th><th class="num">Total</th><th>Status</th></tr></thead><tbody id="o-recent"></tbody></table></div></div>
+
+</main>
+<div id="dash-foot"></div></div></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
+<script src="owner.js"></script>
+</body>
+</html>

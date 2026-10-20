@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login Staf — TOKO BANGUNAN</title>
+<meta name="description" content="Masuk ke dashboard kasir, admin stok, atau owner TOKO BANGUNAN.">
+<meta name="theme-color" content="#0b2a4a">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<script>(function(){try{var t=localStorage.getItem('tb_theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);if(sessionStorage.getItem('tb_loaded')){document.documentElement.classList.add('no-loader')}else{document.documentElement.classList.add('loading')}}catch(e){}})();</script>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="responsive.css">
+</head>
+<body data-shell="public" data-active="login">
+<div id="tb-loader" role="status" aria-live="polite" aria-label="Memuat TOKO BANGUNAN"><div class="ld-box"><div class="ld-logo"><svg width="84" height="84" viewBox="0 0 64 64" role="img" aria-label="Logo TOKO BANGUNAN"><rect width="64" height="64" rx="14" fill="#f26b1d"/><path d="M8 31L32 11l24 20" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 29v23h34V29" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><rect x="21" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="33" y="36" width="9" height="6" rx="1" fill="#fff"/><rect x="27" y="44" width="10" height="6" rx="1" fill="#0b2a4a"/></svg></div><b>TOKO BANGUNAN</b><div class="ld-sub">Mitra Pembangunan Anda</div><div class="ld-bar"><i></i></div><small>Memuat sistem…</small></div></div>
+<div id="site-header"></div>
+<main id="page">
+
+<div class="login-wrap">
+  <div class="card login-card">
+    <a class="brand" href="index.html"><span data-logo="46"></span><div><b>TOKO BANGUNAN</b><small>Login Staf</small></div></a>
+    <h1 style="font-size:22px;text-align:center">Masuk ke Sistem</h1>
+    <form id="login-form" novalidate>
+      <label class="field"><span>Email</span><input class="input" type="email" id="l-email" autocomplete="username" required placeholder="nama@tokoanda.com"></label>
+      <label class="field"><span>Password</span><div class="pw-wrap"><input class="input" type="password" id="l-pass" autocomplete="current-password" required><button type="button" class="icon-btn" id="pw-toggle" aria-label="Tampilkan password"></button></div></label>
+      <p class="form-error" id="l-error" role="alert"></p>
+      <button class="btn btn-primary btn-lg btn-block" type="submit" id="l-submit">Masuk</button>
+    </form>
+    <div class="alert warn" style="margin-top:16px"><span data-ic="alert" data-size="18"></span><span><b>Prototipe:</b> login ini memakai LocalStorage untuk demonstrasi dan <b>bukan sistem keamanan produksi</b>. Gunakan Firebase Authentication atau server sebelum dipakai sungguhan.</span></div>
+    <div class="demo-accounts" id="demo-accounts" hidden></div>
+    <p class="center small" style="margin-top:14px"><a href="index.html">← Kembali ke toko</a></p>
+  </div>
+</div>
+
+</main>
+<div id="site-footer"></div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="auth.js"></script>
+<script src="login.js"></script>
+</body>
+</html>
