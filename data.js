@@ -8,12 +8,12 @@ window.TB = window.TB || {};
 TB.CONFIG = {
   APP_NAME: 'TOKO BANGUNAN',
   TAGLINE: 'Semua Kebutuhan Bangunan, Harga Terbaik, Pengiriman Tepat.',
-  VERSION: '1.0.0',
+  VERSION: '2.0.0',
   KEY_PREFIX: 'tb_',
   SESSION_HOURS: 8,
-  LOADER_MS: 3000,            // lama loading screen (milidetik)
+  LOADER_MS: 4000,            // lama loading screen (milidetik) — V1: 3000
   LOADER_ONCE_PER_SESSION: true, // true: tampil sekali per sesi browser; false: setiap halaman dimuat
-  HERO_IMAGE: '',            // isi dengan nama berkas foto toko di root (mis. 'hero.jpg') untuk mengganti ilustrasi bawaan
+  HERO_IMAGE: '',            // isi dengan nama berkas foto toko (mis. 'assets/hero.jpg') untuk mengganti gambar hero bawaan (assets/hero.webp)
   DEVELOPER_NAME: 'benyoriki.com',
   DEVELOPER_URL: 'https://benyoriki.com',
   FOOTER_CREDIT: 'Website & Sistem Developer — benyoriki.com'

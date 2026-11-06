@@ -1,4 +1,4 @@
-# TOKO BANGUNAN — Website & Sistem Operasional (Prototipe)
+# TOKO BANGUNAN V2 Premium 2026 — Website & Sistem Operasional (Prototipe)
 
 *Semua Kebutuhan Bangunan, Harga Terbaik, Pengiriman Tepat.*
 
@@ -18,7 +18,10 @@ Seluruh file ada langsung di root repository (tanpa subfolder).
 | `owner.html` / `owner.js` | Dashboard owner (statistik nyata) |
 | `laporan.html` / `laporan.js` | Laporan transaksi, penjualan, stok, audit |
 | `pengaturan.html` / `pengaturan.js` | Toko, pembayaran, tarif kirim, diskon, pengguna, backup |
-| `style.css`, `responsive.css` | Desain (terang/gelap) & responsif 320 px → layar lebar |
+| `produk.html` / `produk.js` | **Baru V2**: detail produk (`produk.html?id=…`) + tanya via WhatsApp |
+| `art.js` | **Baru V2**: logo & render visual produk (cadangan runtime + sumber `assets/p/*.webp`) |
+| `assets/` | `hero.webp`, `p/*.webp` gambar produk (42 berkas, ±400 KB total) |
+| `style.css`, `responsive.css` | Desain V2 (navy + oranye, terang/gelap), mobile-first 320 px → 1920 px |
 | `data.js` | Data demo & konfigurasi bawaan |
 | `app.js` | Utilitas, **lapisan penyimpanan `TB.store`**, **logika bisnis `TB.svc`**, UI bersama |
 | `auth.js` | Login & hak akses prototipe |
@@ -52,8 +55,9 @@ Login owner → **Pengaturan**:
 - **Pembayaran**: QRIS (sudah memakai `qris.png` — RIKI HERMAWAN, DIGITAL & KREATIF, NMID ID1026615097429; ganti jika pemilik toko berbeda), zona COD.
 - **Tarif Pengiriman**: zona, kendaraan, kapasitas, biaya dasar, per km, tambahan barang berat.
 - **Produk**: semua harga & stok awal adalah **data demo**, bukan harga pasar. Ubah di Admin Stok.
-- Foto hero: taruh `hero.jpg` di root lalu isi `HERO_IMAGE: 'hero.jpg'` di `data.js`.
-- Loading screen 3 detik: `LOADER_MS` di `data.js` (tampil sekali per sesi browser; set `LOADER_ONCE_PER_SESSION: false` agar tampil di setiap halaman).
+- Foto hero: taruh foto di `assets/` lalu isi `HERO_IMAGE: 'assets/hero.jpg'` di `data.js`.
+- **Foto produk**: gambar bawaan adalah render ilustrasi realistis, bukan foto asli. Untuk foto asli, isi field `photo` produk (mis. `assets/p/SMN-001.jpg`) — `TB.productImage` memakainya otomatis; tanpa mengubah data lain.
+- Loading screen 3 detik: `LOADER_MS` di `data.js` (V2: 1200 ms, V1: 3000; tampil sekali per sesi browser; set `LOADER_ONCE_PER_SESSION: false` agar tampil di setiap halaman).
 
 ## 6. Keterbatasan LocalStorage
 - Data **terpisah per browser & perangkat**: kasir di HP dan owner di laptop **tidak berbagi data**.

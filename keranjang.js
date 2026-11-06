@@ -26,8 +26,8 @@ TB.ready(function () {
     if (!lines.length) { box.innerHTML = '<div class="empty">' + TB.icon('cart', 44) + '<h3>Keranjang masih kosong</h3><p>Pilih material di katalog untuk mulai berbelanja.</p><a class="btn btn-primary" href="katalog.html">Lihat Katalog</a></div>'; return; }
     box.innerHTML = lines.map(function (l) {
       const p = l.product, promo = TB.isPromo(p), step = TB.qtyStep(p);
-      return '<div class="cart-item" data-id="' + p.id + '"><img src="' + TB.productImage(p) + '" alt="' + TB.esc(p.name) + '"><div><b>' + TB.esc(p.name) + '</b><div class="small muted">' + TB.esc(p.sku) + ' · stok ' + TB.num(p.stock) + ' ' + TB.esc(p.unit) + '</div>' +
-        '<div>' + TB.rp(TB.effPrice(p)) + ' / ' + TB.esc(p.unit) + (promo ? ' <span class="price-old">' + TB.rp(p.price) + '</span> <span class="pill promo">Promo</span>' : '') + '</div></div>' +
+      return '<div class="cart-item" data-id="' + p.id + '"><a href="' + TB.productUrl(p) + '"><img src="' + TB.productImage(p) + '" alt="' + TB.esc(p.name) + '" loading="lazy" onerror="this.onerror=null;this.src=TB.productImageFallback(TB.svc.getProduct(\'' + p.id + '\'))"></a><div><a class="c-name" href="' + TB.productUrl(p) + '">' + TB.esc(p.name) + '</a><div class="small muted">' + TB.esc(p.sku) + ' · stok ' + TB.num(p.stock) + ' ' + TB.esc(p.unit) + (p.weightKg ? ' · ±' + TB.num(p.weightKg * l.qty) + ' kg' : '') + '</div>' +
+        '<div class="small"><b>' + TB.rp(TB.effPrice(p)) + '</b> / ' + TB.esc(p.unit) + (promo ? ' <span class="price-old">' + TB.rp(p.price) + '</span> <span class="pill promo">Promo</span>' : '') + '</div></div>' +
         '<div class="c-end"><div class="qty" role="group" aria-label="Jumlah ' + TB.esc(p.name) + '"><button type="button" data-dec aria-label="Kurangi">' + TB.icon('minus', 16) + '</button><input type="number" min="' + step + '" max="' + p.stock + '" step="' + step + '" value="' + l.qty + '" aria-label="Jumlah"><button type="button" data-inc aria-label="Tambah">' + TB.icon('plus', 16) + '</button></div>' +
         '<div style="text-align:right"><b>' + TB.rp(TB.effPrice(p) * l.qty) + '</b><br><button type="button" class="btn btn-ghost btn-sm" data-rm aria-label="Hapus ' + TB.esc(p.name) + '">' + TB.icon('trash', 16) + ' Hapus</button></div></div></div>';
     }).join('');
@@ -103,11 +103,11 @@ TB.ready(function () {
     if (busy) return; const err = $('#co-error'); err.textContent = '';
     const lines = TB.cart.lines(); if (!lines.length) { err.textContent = 'Keranjang kosong.'; return; }
     if (!state.pay) { err.textContent = 'Pilih metode pembayaran.'; return; }
-    busy = true; $('#btn-order').disabled = true; $('#btn-order').textContent = 'Memproses…';
+    busy = true; $('#btn-order').disabled = true; $('#btn-order-label').textContent = 'Memproses…';
     const payMap = { QRIS: 'QRIS', COD: 'COD', PICKUP: 'Bayar di Toko' };
     const res = TB.svc.createTransaction({ clientRef: clientRef(), type: 'online', items: lines.map(function (l) { return { productId: l.product.id, qty: l.qty }; }),
       customer: { name: $('#c-name').value, phone: $('#c-phone').value, address: state.method === 'pickup' ? '' : $('#c-addr').value }, deliveryMethod: state.method, zoneId: state.method === 'pickup' ? '' : state.zone, paymentMethod: payMap[state.pay], notes: $('#c-notes').value }, null);
-    busy = false; $('#btn-order').textContent = 'Buat Pesanan';
+    busy = false; $('#btn-order-label').textContent = 'Checkout via WhatsApp';
     if (!res.ok) { err.innerHTML = res.errors.map(TB.esc).join('<br>'); $('#btn-order').disabled = false; err.scrollIntoView({ block: 'center', behavior: 'smooth' }); sanitizeCart(); refresh(); return; }
     TB.cart.clear(); try { sessionStorage.removeItem('tb_clientref'); } catch (e) { /* abaikan */ }
     history.replaceState(null, '', 'keranjang.html?order=' + encodeURIComponent(res.transaction.id)); showDone(res.transaction); window.scrollTo({ top: 0, behavior: 'smooth' });

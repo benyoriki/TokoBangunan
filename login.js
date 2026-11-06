@@ -20,7 +20,7 @@ TB.ready(function () {
   if (demo.length) {
     const box = $('#demo-accounts'); box.hidden = false;
     const pwd = { owner: 'Owner#2026', kasir: 'Kasir#2026', admin: 'Stok#2026' };
-    box.innerHTML = '<b>Akun demo</b> <span class="muted">(tampil selama password belum diganti)</span>' + demo.map(function (u) { return '<div class="acc"><div><b>' + TB.ROLES[u.role].label + '</b><span>' + TB.esc(u.email) + '</span><span><span class="kbd">' + TB.esc(pwd[u.role] || '') + '</span></span></div><button class="btn btn-outline btn-sm" type="button" data-fill="' + TB.esc(u.email) + '" data-pw="' + TB.esc(pwd[u.role] || '') + '">Isi</button></div>'; }).join('');
+    $('#demo-body').innerHTML = '<p class="muted small" style="margin:4px 0 0">Tampil selama password demo belum diganti. Hanya untuk demonstrasi.</p>' + demo.map(function (u) { return '<div class="acc"><div><b>' + TB.ROLES[u.role].label + '</b><span>' + TB.esc(u.email) + '</span><span><span class="kbd">' + TB.esc(pwd[u.role] || '') + '</span></span></div><button class="btn btn-outline btn-sm" type="button" data-fill="' + TB.esc(u.email) + '" data-pw="' + TB.esc(pwd[u.role] || '') + '">Isi</button></div>'; }).join('');
     box.addEventListener('click', function (e) { const b = e.target.closest('[data-fill]'); if (!b) return; $('#l-email').value = b.getAttribute('data-fill'); pw.value = b.getAttribute('data-pw'); $('#l-submit').focus(); });
   }
   TB.hydrate(document);
