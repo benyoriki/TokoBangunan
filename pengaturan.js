@@ -7,7 +7,7 @@ TB.ready(function () {
   function save(msg) { try { TB.store.saveSettings(S); TB.store.addAudit({ action: 'pengaturan.ubah', userId: user.id, userName: user.name, detail: msg }); TB.toast('Pengaturan disimpan: ' + msg, 'ok'); } catch (e) { TB.toast(e.message, 'error'); } }
 
   /* ---- Tab ---- */
-  const TABS = ['toko', 'pembayaran', 'pengiriman', 'diskon', 'pengguna', 'data'];
+  const TABS = ['toko', 'pembayaran', 'pengiriman', 'diskon', 'pengguna', 'data', 'simulasi'];
   function tab(n) { if (TABS.indexOf(n) < 0) n = 'toko'; TB.$$('#set-tabs button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-tab') === n); }); TABS.forEach(function (t) { $('#set-' + t).hidden = t !== n; }); }
   $('#set-tabs').addEventListener('click', function (e) { const b = e.target.closest('[data-tab]'); if (b) { history.replaceState(null, '', '#' + b.getAttribute('data-tab')); tab(b.getAttribute('data-tab')); } });
   window.addEventListener('hashchange', function () { tab(location.hash.slice(1)); });
@@ -102,6 +102,33 @@ TB.ready(function () {
     if (rs) { const u = TB.store.getUsers().find(function (x) { return x.id === rs.getAttribute('data-ur'); }); TB.prompt('Password baru untuk ' + u.email + ' (min. 8 karakter, huruf & angka)', { title: 'Reset Password', required: true }).then(function (pw) { if (!pw) return; const r = TB.auth.changePassword(u.id, null, pw, true); TB.toast(r.ok ? 'Password direset. Pengguna disarankan menggantinya saat login.' : r.error, r.ok ? 'ok' : 'error'); viewUser(); }); }
   });
 
+  /* ---- Simulasi & uji performa ---- */
+  function viewSim() {
+    const el = $('#set-sim' + 'ulasi'); let last = null;
+    function usageHtml() { const u = TB.store.usage(); const tone = u.pct < 60 ? 'ok' : u.pct < 85 ? 'warn' : 'bad'; const keys = Object.keys(u.by).sort(function (a, b) { return u.by[b] - u.by[a]; });
+      return '<div class="meter ' + tone + '" style="height:12px"><i style="width:' + Math.min(100, u.pct) + '%"></i></div><p class="small"><b>' + TB.num(u.chars / 1e6) + ' juta</b> dari ±5 juta karakter (' + u.pct + '%)</p><p class="small muted">' + keys.slice(0, 6).map(function (k) { return TB.esc(k) + ' ' + TB.num(u.by[k] / 1000) + ' rb'; }).join(' · ') + '</p>'; }
+    function draw() {
+      el.innerHTML = '<div class="alert info small"><span data-ic="info" data-size="18"></span><span>Fitur uji untuk mengukur kecepatan website saat data transaksi sudah banyak. Data dibuat di <b>browser ini saja</b> dan menimpa transaksi, mutasi stok, kas, notifikasi, dan stok produk (pengguna &amp; pengaturan tidak berubah). Unduh backup dulu bila ada data penting.</span></div>' +
+      '<div class="grid-2e"><div class="card panel"><h3>Generator Data Simulasi</h3><div class="form-grid"><label class="field"><span>Beban transaksi</span><select class="input" id="sm-load">' + Object.keys(TB.sim.LOADS).map(function (k) { return '<option value="' + k + '"' + (k === '2' ? ' selected' : '') + '>' + TB.sim.LOADS[k] + '</option>'; }).join('') + '</select></label><label class="field"><span>Periode</span><select class="input" id="sm-days">' + TB.sim.DAYS.map(function (d) { return '<option value="' + d + '"' + (d === 30 ? ' selected' : '') + '>' + d + ' hari terakhir</option>'; }).join('') + '</select></label></div>' +
+      '<p class="small" id="sm-est"></p><p class="small muted">Mencakup: transaksi kasir &amp; pesanan online (QRIS/COD/ambil di toko), pembatalan, stok berkurang (penjualan, rusak, opname) dan bertambah (pembelian supplier), kas masuk &amp; keluar (gaji, BBM, sewa, pajak, pembelian), notifikasi, dan log audit. 1x ≈ 35 transaksi/hari; 2x ≈ 70/hari.</p>' +
+      '<button class="btn btn-primary" id="sm-go" type="button">Buat Data Simulasi</button> <button class="btn btn-outline" id="sm-back" type="button">Kembalikan Data Demo Awal</button><p class="form-error" id="sm-err" role="alert"></p><div id="sm-res"></div></div>' +
+      '<div class="card panel"><h3>Penyimpanan Browser</h3><div id="sm-use">' + usageHtml() + '</div><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><h3>Uji Performa</h3><p class="small muted">Mengukur waktu proses nyata di perangkat ini. PC Windows 7 lama biasanya 2–4× lebih lambat daripada angka di PC baru.</p><button class="btn btn-dark" id="sm-bench" type="button">Jalankan Uji Performa</button><div id="sm-bres"></div></div></div>'; TB.hydrate(el);
+      function est() { const e = TB.sim.estimate(+$('#sm-days').value, +$('#sm-load').value); const t = e.pct < 70 ? 'ok' : e.pct < 90 ? 'warn' : 'bad'; $('#sm-est').innerHTML = 'Perkiraan: <b>±' + TB.num(e.txns) + ' transaksi</b>, penyimpanan ±' + TB.num(e.chars / 1e6) + ' juta karakter (<span class="pill ' + t + '">' + e.pct + '% kuota</span>)' + (e.pct >= 90 ? ' — terlalu besar, kurangi periode/beban.' : ''); $('#sm-go').disabled = e.pct >= 92; }
+      $('#sm-days').addEventListener('change', est); $('#sm-load').addEventListener('change', est); est();
+      $('#sm-go').addEventListener('click', function () {
+        TB.confirm('Transaksi, mutasi stok, kas, notifikasi & stok produk di browser ini akan DITIMPA data simulasi. Lanjutkan?', { danger: true, okLabel: 'Buat Data' }).then(function (ok) { if (!ok) return; const b = $('#sm-go'); b.disabled = true; b.textContent = 'Membuat data…'; $('#sm-err').textContent = '';
+          setTimeout(function () { try { const d = TB.sim.generate({ days: +$('#sm-days').value, load: +$('#sm-load').value }); const w = TB.sim.apply(d); const s = d.stats; TB.store.addAudit({ action: 'simulasi.buat', userId: user.id, userName: user.name, detail: s.txns + ' transaksi, ' + s.days + ' hari, beban ' + s.load + 'x' });
+            $('#sm-res').innerHTML = '<div class="alert ok small"><span data-ic="check" data-size="18"></span><span><b>Data simulasi dibuat</b> (' + s.ms + ' ms dibuat, ' + w.ms + ' ms disimpan).</span></div><div class="tbl-wrap"><table class="tbl"><tbody>' + [['Transaksi', TB.num(s.txns) + ' (' + s.perDay + '/hari)'], ['Pesanan online', TB.num(s.online)], ['Dibatalkan', s.voided], ['Omzet kotor', TB.rp(s.omzet)], ['Mutasi stok', TB.num(s.movements) + ' (masuk dari supplier ' + s.stockIn + ', keluar/koreksi ' + s.stockOut + ')'], ['Kas manual & operasional', s.cash + ' catatan'], ['Notifikasi', s.notifs + ' (' + s.unread + ' belum dibaca)'], ['Penjualan gagal (stok kosong)', s.lostSales]].map(function (r) { return '<tr><td>' + r[0] + '</td><td class="num">' + r[1] + '</td></tr>'; }).join('') + '</tbody></table></div><p class="small muted">Buka Dashboard, Laporan, Kas &amp; Notifikasi untuk mencoba.</p>'; TB.hydrate($('#sm-res')); $('#sm-use').innerHTML = usageHtml(); TB.notifs.badge(); }
+          catch (e) { $('#sm-err').textContent = e.message; } b.disabled = false; b.textContent = 'Buat Data Simulasi'; est(); }, 60); });
+      });
+      $('#sm-back').addEventListener('click', function () { TB.confirm('Kembalikan transaksi, stok, kas & notifikasi ke data demo awal?', { danger: true, okLabel: 'Kembalikan' }).then(function (ok) { if (!ok) return; try { TB.sim.restoreDefault(); TB.toast('Data demo awal dipulihkan.', 'ok'); $('#sm-use').innerHTML = usageHtml(); $('#sm-res').innerHTML = ''; TB.notifs.badge(); } catch (e) { $('#sm-err').textContent = e.message; } }); });
+      $('#sm-bench').addEventListener('click', function () { const b = $('#sm-bench'); b.disabled = true; b.textContent = 'Menguji…'; setTimeout(function () { const r = TB.sim.benchmark(); last = r; const lab = { ok: 'Lancar', warn: 'Perlu perhatian', bad: 'Lambat' };
+        $('#sm-bres').innerHTML = '<div class="alert ' + (r.verdict === 'ok' ? 'ok' : r.verdict === 'warn' ? 'warn' : 'bad') + ' small" style="margin-top:12px"><b>Hasil: ' + lab[r.verdict] + '</b>&nbsp;pada ' + TB.num(r.txns) + ' transaksi.</div><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Pengujian</th><th class="num">Hasil</th><th></th></tr></thead><tbody>' + r.rows.map(function (x) { return '<tr><td>' + TB.esc(x.name) + '<div class="small muted">' + TB.esc(x.desc) + '</div></td><td class="num">' + (x.ms == null ? x.pct + '%' : x.ms + ' ms') + '</td><td><span class="pill ' + x.rate + '">' + lab[x.rate] + '</span></td></tr>'; }).join('') + '</tbody></table></div>';
+        b.disabled = false; b.textContent = 'Ulangi Uji Performa'; }, 60); });
+    }
+    draw();
+  }
+
   /* ---- Backup & data ---- */
   function viewData() {
     let used = 0; try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('tb_') === 0) used += (localStorage.getItem(k) || '').length * 2; }); } catch (e) { /* abaikan */ }
@@ -123,5 +150,5 @@ TB.ready(function () {
     });
   }
 
-  viewToko(); viewBayar(); viewKirim(); viewDiskon(); viewUser(); viewData(); tab(location.hash.slice(1)); TB.hydrate(document);
+  viewToko(); viewBayar(); viewKirim(); viewDiskon(); viewUser(); viewData(); viewSim(); tab(location.hash.slice(1)); TB.hydrate(document);
 });

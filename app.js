@@ -101,6 +101,7 @@ window.TB = window.TB || {};
     tools: 'M14.7 6.3a4 4 0 0 0 5 5L10 21l-4-4zM17 3l4 4', pipe: 'M3 8h10v4h6v6h-4v-2H9v-4H3z', bulb: 'M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z',
     board: 'M3 6l9-3 9 3-9 3zM3 6v12l9 3 9-3V6M12 9v12', roof: 'M2 12l10-8 10 8M5 10v10h14V10', undo: 'M3 7v6h6M3 13a9 9 0 1 0 3-7.7L3 8',
     headset: 'M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v5H5a1 1 0 0 1-1-1zM20 14h-3v5h2a1 1 0 0 0 1-1zM17 19c0 1.5-2 2-5 2', database: 'M12 8c4.4 0 8-1.3 8-3s-3.6-3-8-3-8 1.3-8 3 3.6 3 8 3zM4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3',
+    bell: 'M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9zM13.7 21a2 2 0 0 1-3.4 0', wallet: 'M3 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM3 7l2-3h12v3M16 13.5h.01', gauge: 'M12 14l4-4M3 17a9 9 0 1 1 18 0', arrowup: 'M12 19V5M5 12l7-7 7 7', arrowdown: 'M12 5v14M19 12l-7 7-7-7',
     chevron: 'M9 6l6 6-6 6', chevdown: 'M6 9l6 6 6-6', check2: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM8 12l3 3 5-6', hardhat: 'M3 17h18M5 17a7 7 0 0 1 14 0M12 6v5M9 8l1 3M15 8l-1 3', ruler: 'M3 17L17 3l4 4L7 21zM7 13l2 2M10 10l2 2M13 7l2 2', paintroller: 'M5 4h12v5H5zM17 6.5h2.5V12H11v3M9 15h4v6H9z', layersx: 'M12 2L2 7l10 5 10-5zM2 12l10 5 10-5', phone2: 'M7 2h10a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zM11 18h2'
   };
   TB.icon = function (name, size, cls) {
@@ -112,7 +113,7 @@ window.TB = window.TB || {};
 
   /* ---------------- Penyimpanan (LocalStorage) ---------------- */
   const P = TB.CONFIG.KEY_PREFIX;
-  const KEYS = { products: P + 'products', transactions: P + 'transactions', users: P + 'users', movements: P + 'stock_movements', settings: P + 'settings', cart: P + 'cart', categories: P + 'categories', units: P + 'units', audit: P + 'audit', counters: P + 'counters', seeded: P + 'seeded', session: P + 'session', theme: P + 'theme' };
+  const KEYS = { products: P + 'products', transactions: P + 'transactions', users: P + 'users', movements: P + 'stock_movements', settings: P + 'settings', cart: P + 'cart', categories: P + 'categories', units: P + 'units', audit: P + 'audit', counters: P + 'counters', cash: P + 'cash', notifs: P + 'notifs', seeded: P + 'seeded', session: P + 'session', theme: P + 'theme' };
   TB.KEYS = KEYS;
   const store = TB.store = { errors: [] };
 
@@ -132,21 +133,34 @@ window.TB = window.TB || {};
   }
   store.read = readKey; store.write = writeKey;
 
+  /* Cek cepat "apakah key berisi array" tanpa JSON.parse (data transaksi bisa berukuran MB) */
+  function hasArray(key) { try { const r = localStorage.getItem(key); return typeof r === 'string' && r.charAt(0) === '['; } catch (e) { return false; } }
   store.ensureSeed = function () {
-    if (readKey(KEYS.seeded, null) && !store.errors.length) { /* tetap cek key kosong di bawah */ }
-    let prods = readKey(KEYS.products, null);
+    let prods = hasArray(KEYS.products) ? readKey(KEYS.products, null) : null;
     let seededNow = false;
     if (!Array.isArray(prods)) { prods = TB.buildDemoProducts(); writeKey(KEYS.products, prods); seededNow = true; }
-    if (!Array.isArray(readKey(KEYS.categories, null))) writeKey(KEYS.categories, TB.clone(TB.DEFAULT_CATEGORIES));
-    if (!Array.isArray(readKey(KEYS.units, null))) writeKey(KEYS.units, TB.clone(TB.DEFAULT_UNITS));
-    if (!Array.isArray(readKey(KEYS.users, null))) writeKey(KEYS.users, TB.clone(TB.DEFAULT_USERS));
+    if (!hasArray(KEYS.categories)) writeKey(KEYS.categories, TB.clone(TB.DEFAULT_CATEGORIES));
+    if (!hasArray(KEYS.units)) writeKey(KEYS.units, TB.clone(TB.DEFAULT_UNITS));
+    if (!hasArray(KEYS.users)) writeKey(KEYS.users, TB.clone(TB.DEFAULT_USERS));
     if (!readKey(KEYS.settings, null)) writeKey(KEYS.settings, TB.clone(TB.DEFAULT_SETTINGS));
-    if (!Array.isArray(readKey(KEYS.transactions, null))) {
-      const demo = TB.buildDemoTransactions(prods); writeKey(KEYS.transactions, demo.txns); writeKey(KEYS.counters, demo.counters); seededNow = true;
+    /* Data simulasi otomatis (beban 2x, 30 hari) bila belum ada transaksi, atau disegarkan 1x per hari
+       selama semua transaksi masih data demo (tidak pernah menimpa transaksi nyata / pilihan manual). */
+    function autoSim() {
+      if (!TB.CONFIG.AUTO_SIM || !TB.sim) return false;
+      try { const d = TB.sim.generate({ days: 30, load: 2 }); TB.sim.apply(d); writeKey(KEYS.seeded, { at: new Date().toISOString(), version: TB.CONFIG.VERSION, sim: true, day: TB.dateKey(new Date()) }); return true; } catch (e) { console.error(e); return false; }
     }
-    if (!Array.isArray(readKey(KEYS.movements, null))) writeKey(KEYS.movements, []);
-    if (!Array.isArray(readKey(KEYS.audit, null))) writeKey(KEYS.audit, []);
-    if (!Array.isArray(readKey(KEYS.cart, null))) writeKey(KEYS.cart, []);
+    if (!hasArray(KEYS.transactions)) {
+      if (autoSim()) seededNow = true;
+      else { const demo = TB.buildDemoTransactions(prods); writeKey(KEYS.transactions, demo.txns); writeKey(KEYS.counters, demo.counters); seededNow = true; }
+    } else if (TB.CONFIG.AUTO_SIM && TB.sim) {
+      const sd = readKey(KEYS.seeded, null) || {}; let allDemo = false; try { allDemo = (localStorage.getItem(KEYS.transactions) || '').indexOf('"demo":false') < 0; } catch (e) { /* abaikan */ }
+      if (allDemo && !sd.manual && (!sd.sim || sd.day !== TB.dateKey(new Date()))) { autoSim(); prods = readKey(KEYS.products, prods) || prods; }
+    }
+    if (!hasArray(KEYS.movements)) writeKey(KEYS.movements, []);
+    if (!hasArray(KEYS.audit)) writeKey(KEYS.audit, []);
+    if (!hasArray(KEYS.cash)) writeKey(KEYS.cash, []);
+    if (!hasArray(KEYS.notifs)) writeKey(KEYS.notifs, []);
+    if (!hasArray(KEYS.cart)) writeKey(KEYS.cart, []);
     if (!readKey(KEYS.counters, null)) writeKey(KEYS.counters, {});
     if (!readKey(KEYS.seeded, null)) writeKey(KEYS.seeded, { at: new Date().toISOString(), version: TB.CONFIG.VERSION });
     return seededNow;
@@ -184,6 +198,25 @@ window.TB = window.TB || {};
   store.addAudit = function (entry) {
     const l = store.getAudit(); l.push(Object.assign({ id: TB.uid('aud'), at: new Date().toISOString() }, entry)); writeKey(KEYS.audit, l.slice(-2000));
   };
+  /* Buku kas (entri manual & operasional; kas dari penjualan diturunkan dari transaksi) */
+  store.getCash = function () { return arr(KEYS.cash); };
+  store.saveCash = function (l) { writeKey(KEYS.cash, l); };
+  store.addCash = function (e) { const l = store.getCash(); l.push(Object.assign({ id: TB.uid('kas'), at: new Date().toISOString() }, e)); writeKey(KEYS.cash, l); return l[l.length - 1]; };
+  /* Notifikasi (maks. 400 terbaru agar penyimpanan tetap ringan) */
+  const NOTIF_MAX = 400;
+  store.getNotifs = function () { return arr(KEYS.notifs); };
+  store.saveNotifs = function (l) { writeKey(KEYS.notifs, l.slice(-NOTIF_MAX)); TB.emit('notifs'); };
+  store.addNotif = function (n) {
+    try { const l = store.getNotifs(); l.push(Object.assign({ id: TB.uid('n'), at: new Date().toISOString(), read: false, level: 'info' }, n)); writeKey(KEYS.notifs, l.slice(-NOTIF_MAX)); TB.emit('notifs'); } catch (e) { /* notifikasi tidak boleh menggagalkan transaksi */ }
+  };
+  store.unreadCount = function () { let n = 0; try { const raw = localStorage.getItem(KEYS.notifs); if (!raw || raw.length < 3) return 0; const l = JSON.parse(raw); for (let i = 0; i < l.length; i++) if (!l[i].read) n++; } catch (e) { /* abaikan */ } return n; };
+  /* Pemakaian penyimpanan browser (LocalStorage ±5 juta karakter) */
+  store.usage = function () {
+    const by = {}; let chars = 0;
+    try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf(P) !== 0) return; const n = k.length + (localStorage.getItem(k) || '').length; by[k.slice(P.length)] = n; chars += n; }); } catch (e) { /* abaikan */ }
+    const limit = 5 * 1024 * 1024;
+    return { chars: chars, bytes: chars * 2, limit: limit, pct: Math.round(chars / limit * 1000) / 10, by: by };
+  };
   store.nextNumber = function (prefix) {
     const c = readKey(KEYS.counters, {}) || {}; const key = TB.dateKey(new Date()).replace(/-/g, '').slice(2); const k = prefix + key;
     /* Nomor berikutnya = yang terbesar di antara penghitung dan transaksi tersimpan, +1 (anti-tabrakan) */
@@ -194,7 +227,7 @@ window.TB = window.TB || {};
   };
   store.exportBackup = function () {
     const data = {};
-    [KEYS.products, KEYS.transactions, KEYS.users, KEYS.movements, KEYS.settings, KEYS.categories, KEYS.units, KEYS.audit, KEYS.counters].forEach(function (k) { data[k.replace(P, '')] = readKey(k, null); });
+    [KEYS.products, KEYS.transactions, KEYS.users, KEYS.movements, KEYS.settings, KEYS.categories, KEYS.units, KEYS.audit, KEYS.counters, KEYS.cash, KEYS.notifs].forEach(function (k) { data[k.replace(P, '')] = readKey(k, null); });
     return { app: 'TOKO BANGUNAN', version: TB.CONFIG.VERSION, exportedAt: new Date().toISOString(), note: 'Backup LocalStorage prototipe. Berisi hash password akun demo.', data: data };
   };
   store.validateBackup = function (obj) {
@@ -271,6 +304,15 @@ window.TB = window.TB || {};
   const svc = TB.svc = {};
   function actorOf(u) { return u ? { id: u.id, name: u.name, role: u.role } : { id: null, name: 'Pelanggan (publik)', role: 'publik' }; }
 
+  /* Notifikasi & peringatan stok (gagal menulis notifikasi tidak boleh menggagalkan transaksi) */
+  svc.notify = function (n) { try { store.addNotif(n); } catch (e) { /* abaikan */ } };
+  svc.stockAlerts = function (movements, products) {
+    (movements || []).forEach(function (m) {
+      const p = (products || []).find(function (x) { return x.id === m.productId; }); if (!p || !(m.after < m.before)) return;
+      if (m.after <= 0 && m.before > 0) svc.notify({ type: 'stock', level: 'bad', title: 'Stok habis', body: p.name + ' habis (stok minimum ' + TB.num(p.minStock) + ' ' + p.unit + ').', ref: p.id });
+      else if (m.after <= p.minStock && m.before > p.minStock) svc.notify({ type: 'stock', level: 'warn', title: 'Stok menipis', body: p.name + ' tersisa ' + TB.num(m.after) + ' ' + p.unit + ' (minimum ' + TB.num(p.minStock) + ').', ref: p.id });
+    });
+  };
   svc.validateProduct = function (p, products) {
     const e = [];
     if (!p.name || !String(p.name).trim()) e.push('Nama produk wajib diisi.');
@@ -330,7 +372,10 @@ window.TB = window.TB || {};
     after = TB.round2(after);
     if (after < 0) return { ok: false, errors: ['Stok tidak boleh negatif. Stok tersedia: ' + before + ' ' + p.unit + '.'] };
     p.stock = after; p.updatedAt = new Date().toISOString(); store.saveProducts(products);
-    store.saveStockMovement({ id: TB.uid('mv'), at: p.updatedAt, productId: p.id, sku: p.sku, name: p.name, type: type, qty: TB.round2(after - before), before: before, after: after, reason: reason, userId: actor.id, userName: actor.name, ref: ref || '' });
+    const mv = { id: TB.uid('mv'), at: p.updatedAt, productId: p.id, sku: p.sku, name: p.name, type: type, qty: TB.round2(after - before), before: before, after: after, reason: reason, userId: actor.id, userName: actor.name, ref: ref || '' };
+    store.saveStockMovement(mv);
+    if (type === 'masuk') svc.notify({ type: 'stockin', level: 'ok', title: 'Stok masuk', body: p.name + ' +' + TB.num(after - before) + ' ' + p.unit + ' (stok kini ' + TB.num(after) + ').', ref: p.id });
+    else svc.stockAlerts([mv], products);
     return { ok: true, before: before, after: after };
   };
 
@@ -394,6 +439,9 @@ window.TB = window.TB || {};
         movements.push({ id: TB.uid('mv'), at: now, productId: l.product.id, sku: l.product.sku, name: l.product.name, type: isOnline ? 'pesanan' : 'penjualan', qty: -l.qty, before: before, after: l.product.stock, reason: (isOnline ? 'Pesanan online ' : 'Penjualan kasir ') + number, userId: actor ? actor.id : null, userName: actorOf(actor).name, ref: number });
       });
       store.saveProducts(products); store.saveTransaction(txn); store.saveStockMovements(movements);
+      if (isOnline) svc.notify({ type: 'order', level: 'info', title: 'Pesanan online baru', body: number + ' · ' + txn.customer.name + ' · ' + TB.rp(txn.total) + ' · ' + txn.paymentStatus, ref: number });
+      else if (txn.total >= 5000000) svc.notify({ type: 'order', level: 'info', title: 'Transaksi besar', body: number + ' · ' + txn.customer.name + ' · ' + TB.rp(txn.total) + ' (' + txn.paymentMethod + ')', ref: number });
+      svc.stockAlerts(movements, products);
     } catch (e) {
       try { localStorage.setItem(KEYS.products, snapshot); } catch (e2) { /* abaikan */ }
       return { ok: false, errors: ['Transaksi dibatalkan karena gagal menyimpan: ' + e.message] };
@@ -402,7 +450,9 @@ window.TB = window.TB || {};
   };
   svc.updateTransaction = function (id, patch, actor, note) {
     const list = store.getTransactions(); const t = list.find(function (x) { return x.id === id; }); if (!t) return { ok: false, errors: ['Transaksi tidak ditemukan.'] };
-    Object.assign(t, patch); t.audit = (t.audit || []).concat([{ at: new Date().toISOString(), by: actorOf(actor).name, action: note || 'Diperbarui' }]);
+    const nowIso = new Date().toISOString();
+    if (patch && patch.paymentStatus === 'Lunas' && t.paymentStatus !== 'Lunas') { patch = Object.assign({ paidAt: nowIso }, patch); svc.notify({ type: 'payment', level: 'ok', title: 'Pembayaran diterima', body: t.id + ' · ' + t.customer.name + ' · ' + TB.rp(t.total) + ' (' + t.paymentMethod + ')', ref: t.id }); }
+    Object.assign(t, patch); t.audit = (t.audit || []).concat([{ at: nowIso, by: actorOf(actor).name, action: note || 'Diperbarui' }]);
     store.saveTransactions(list); store.addAudit({ action: 'transaksi.ubah', userId: actor.id, userName: actor.name, detail: id + ' · ' + (note || '') }); return { ok: true, transaction: t };
   };
   svc.cancelTransaction = function (id, reason, actor) {
@@ -418,7 +468,8 @@ window.TB = window.TB || {};
     t.voided = true; t.voidReason = reason; t.voidedAt = now; t.voidedBy = actor.name; t.orderStatus = 'Dibatalkan';
     t.audit = (t.audit || []).concat([{ at: now, by: actor.name, action: 'Dibatalkan: ' + reason }]);
     store.saveProducts(products); store.saveTransactions(list); store.saveStockMovements(movements);
-    store.addAudit({ action: 'transaksi.batal', userId: actor.id, userName: actor.name, detail: id + ' · ' + reason }); return { ok: true };
+    store.addAudit({ action: 'transaksi.batal', userId: actor.id, userName: actor.name, detail: id + ' · ' + reason });
+    svc.notify({ type: 'cancel', level: 'warn', title: 'Transaksi dibatalkan', body: id + ' · ' + TB.rp(t.total) + ' · ' + reason, ref: id }); return { ok: true };
   };
   svc.getProduct = function (id) { return store.getProducts().find(function (p) { return p.id === id; }); };
   svc.activeTransactions = function () { return store.getTransactions().filter(function (t) { return !t.voided; }); };
@@ -433,6 +484,34 @@ window.TB = window.TB || {};
       s.byMethod[t.paymentMethod] = (s.byMethod[t.paymentMethod] || 0) + t.total;
     });
     s.grossProfit = s.omzet - s.hpp; s.avg = s.count ? (s.omzet + s.shipping) / s.count : 0; return s;
+  };
+
+  /* Buku kas: kas masuk dari penjualan (lunas) diturunkan dari transaksi dan dikelompokkan per hari & metode;
+     kas keluar/masuk lain dicatat di tb_cash. Tidak ada pencatatan ganda. */
+  svc.cashEntries = function () {
+    const g = {}, out = [];
+    function add(when, dir, method, amt, cat) {
+      const day = TB.dateKey(when), k = dir + '|' + day + '|' + method; let e = g[k];
+      if (!e) { const d = new Date(when); d.setHours(21, 0, 0, 0); e = g[k] = { id: 'auto-' + k, at: d.toISOString(), dir: dir, cat: cat, amount: 0, method: method, n: 0, auto: true, note: '' }; out.push(e); }
+      e.amount += amt; e.n++;
+    }
+    store.getTransactions().forEach(function (t) {
+      if (t.paymentStatus !== 'Lunas') return;
+      add(t.paidAt || t.createdAt, 'in', t.paymentMethod, t.total, 'Penjualan');
+      if (t.voided) add(t.voidedAt || t.createdAt, 'out', t.paymentMethod, t.total, 'Refund pembatalan');
+    });
+    out.forEach(function (e) { e.note = e.dir === 'in' ? 'Penjualan ' + e.method + ' · ' + e.n + ' transaksi' : 'Refund ' + e.n + ' pembatalan'; });
+    return out.concat(store.getCash());
+  };
+  svc.cashSummary = function (entries, from, to) {
+    const s = { in: 0, out: 0, net: 0, byCat: {}, balanceEnd: 0, opening: 0 };
+    entries.forEach(function (e) {
+      const d = TB.dateKey(e.at), v = e.dir === 'in' ? e.amount : -e.amount;
+      if (to && d > to) return;
+      if (from && d < from) { s.opening += v; return; }
+      if (e.dir === 'in') s.in += e.amount; else { s.out += e.amount; s.byCat[e.cat] = (s.byCat[e.cat] || 0) + e.amount; }
+    });
+    s.net = s.in - s.out; s.balanceEnd = s.opening + s.net; return s;
   };
 
   /* ---------------- WhatsApp ---------------- */
@@ -557,15 +636,39 @@ window.TB = window.TB || {};
       { href: 'laporan.html#transaksi', label: 'Transaksi', ic: 'receipt' }, { href: 'laporan.html#penjualan', label: 'Laporan Penjualan', ic: 'chart' },
       { href: 'laporan.html#stok', label: 'Laporan Stok', ic: 'layers' }, { href: 'admin-stok.html', label: 'Produk & Stok', ic: 'box' },
       { href: 'pengaturan.html', label: 'Pengaturan Toko', ic: 'settings' }, { href: 'pengaturan.html#pengguna', label: 'Pengguna & Role', ic: 'users' },
+      { href: 'kas.html', label: 'Kas & Pengeluaran', ic: 'wallet' }, { href: 'notifikasi.html', label: 'Notifikasi', ic: 'bell', notif: true },
       { href: 'laporan.html#audit', label: 'Catatan Audit', ic: 'shield' }, { href: 'index.html', label: 'Lihat Toko', ic: 'store' }],
     kasir: [
       { href: 'kasir.html', label: 'Transaksi Kasir', ic: 'cash' }, { href: 'kasir.html#riwayat', label: 'Riwayat Transaksi', ic: 'history' },
-      { href: 'laporan.html#penjualan', label: 'Laporan Saya', ic: 'chart' }, { href: 'index.html', label: 'Lihat Toko', ic: 'store' }],
+      { href: 'laporan.html#penjualan', label: 'Laporan Saya', ic: 'chart' }, { href: 'notifikasi.html', label: 'Notifikasi', ic: 'bell', notif: true }, { href: 'index.html', label: 'Lihat Toko', ic: 'store' }],
     admin: [
       { href: 'admin-stok.html', label: 'Inventaris', ic: 'box' }, { href: 'admin-stok.html#mutasi', label: 'Stok Masuk / Keluar', ic: 'layers' },
       { href: 'admin-stok.html#riwayat', label: 'Riwayat Stok', ic: 'history' }, { href: 'admin-stok.html#kategori', label: 'Kategori & Satuan', ic: 'tag' },
-      { href: 'laporan.html#stok', label: 'Laporan Stok', ic: 'chart' }, { href: 'index.html', label: 'Lihat Toko', ic: 'store' }]
+      { href: 'laporan.html#stok', label: 'Laporan Stok', ic: 'chart' }, { href: 'notifikasi.html', label: 'Notifikasi', ic: 'bell', notif: true }, { href: 'index.html', label: 'Lihat Toko', ic: 'store' }]
   };
+
+  /* ---------------- Notifikasi ---------------- */
+  TB.NOTIF_TYPES = { order: { ic: 'receipt', label: 'Pesanan' }, payment: { ic: 'check', label: 'Pembayaran' }, stock: { ic: 'alert', label: 'Stok' }, stockin: { ic: 'box', label: 'Stok' }, cancel: { ic: 'undo', label: 'Pembatalan' }, kas: { ic: 'wallet', label: 'Kas' }, delivery: { ic: 'truck', label: 'Pengiriman' }, system: { ic: 'info', label: 'Sistem' } };
+  TB.timeAgo = function (iso) {
+    const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+    if (s < 60) return 'baru saja'; if (s < 3600) return Math.floor(s / 60) + ' mnt lalu'; if (s < 86400) return Math.floor(s / 3600) + ' jam lalu';
+    if (s < 7 * 86400) return Math.floor(s / 86400) + ' hari lalu'; return TB.fmtDate(iso);
+  };
+  TB.notifVisible = function (n, role) { return !n.for || n.for === role || (n.for === 'staff' && role !== 'publik'); };
+  TB.notifHref = function (n, role) {
+    if (!n.ref) return ''; if (n.type === 'stock' || n.type === 'stockin') return role === 'kasir' ? '' : 'admin-stok.html';
+    if (n.type === 'kas') return role === 'owner' ? 'kas.html' : ''; return 'laporan.html?q=' + encodeURIComponent(n.ref) + '#transaksi';
+  };
+  TB.notifItem = function (n, role) {
+    const t = TB.NOTIF_TYPES[n.type] || TB.NOTIF_TYPES.system; const href = TB.notifHref(n, role);
+    return '<' + (href ? 'a href="' + href + '"' : 'div') + ' class="nt-item' + (n.read ? '' : ' unread') + '" data-nid="' + TB.esc(n.id) + '"><span class="nt-ic ' + TB.esc(n.level || 'info') + '">' + TB.icon(t.ic, 16) + '</span><span class="nt-tx"><b>' + TB.esc(n.title) + '</b><span>' + TB.esc(n.body || '') + '</span><small>' + TB.timeAgo(n.at) + '</small></span></' + (href ? 'a' : 'div') + '>';
+  };
+  TB.notifs = {
+    mine: function (role) { return store.getNotifs().filter(function (n) { return TB.notifVisible(n, role); }); },
+    markRead: function (ids) { const l = store.getNotifs(); let ch = false; const all = ids === 'all'; l.forEach(function (n) { if (!n.read && (all || ids.indexOf(n.id) >= 0)) { n.read = true; ch = true; } }); if (ch) store.saveNotifs(l); },
+    badge: function () { const n = store.unreadCount(); TB.$$('[data-notif-badge]').forEach(function (b) { b.textContent = n > 99 ? '99+' : n; b.hidden = n === 0; }); }
+  };
+
 
   TB.renderFooter = function (el, compact) {
     const s = store.getSettings().store;
@@ -607,9 +710,9 @@ window.TB = window.TB || {};
     const side = TB.$('#dash-side'), top = TB.$('#dash-top'), foot = TB.$('#dash-foot'); const s = store.getSettings().store;
     const nav = TB.NAV[role] || [];
     side.innerHTML = '<div class="side-head"><a class="brand brand-light" href="index.html">' + TB.logo(36) + '<div><b>' + TB.esc(s.name) + '</b><small>' + TB.ROLES[role].label + '</small></div></a><button class="icon-btn side-close" id="side-close" aria-label="Tutup menu">' + TB.icon('x') + '</button></div>' +
-      '<nav class="side-nav" aria-label="Menu dashboard">' + nav.map(function (n) { return '<a href="' + n.href + '" data-href="' + n.href + '">' + TB.icon(n.ic, 18) + '<span>' + n.label + '</span></a>'; }).join('') + '</nav>' +
+      '<nav class="side-nav" aria-label="Menu dashboard">' + nav.map(function (n) { return '<a href="' + n.href + '" data-href="' + n.href + '">' + TB.icon(n.ic, 18) + '<span>' + n.label + '</span>' + (n.notif ? '<span class="badge side-badge" data-notif-badge hidden>0</span>' : '') + '</a>'; }).join('') + '</nav>' +
       '<div class="side-foot"><div class="side-user"><div class="avatar">' + TB.esc(user.name.charAt(0)) + '</div><div><b>' + TB.esc(user.name) + '</b><small>' + TB.esc(user.email) + '</small></div></div><button class="btn btn-ghost-light btn-block" id="chgpw-btn">' + TB.icon('lock', 18) + ' Ganti Password</button><button class="btn btn-ghost-light btn-block" id="logout-btn">' + TB.icon('logout', 18) + ' Keluar</button></div>';
-    top.innerHTML = '<button class="icon-btn" id="side-open" aria-label="Buka menu">' + TB.icon('menu', 22) + '</button><div class="top-title"><h1>' + TB.esc(opts.title || '') + '</h1><small id="top-clock"></small></div><div class="top-right"><span class="status-pill" title="Data tersimpan di browser perangkat ini (LocalStorage), tidak tersinkron antar perangkat">' + TB.icon('database', 14) + ' Data lokal · demo</span>' + TB.themeButton() + '<span class="top-user">' + TB.icon('user', 16) + TB.esc(user.name) + '</span><button class="btn btn-outline btn-sm" id="logout-top">' + TB.icon('logout', 16) + '<span>Keluar</span></button></div>';
+    top.innerHTML = '<button class="icon-btn" id="side-open" aria-label="Buka menu">' + TB.icon('menu', 22) + '</button><div class="top-title"><h1>' + TB.esc(opts.title || '') + '</h1><small id="top-clock"></small></div><div class="top-right"><span class="status-pill" title="Data tersimpan di browser perangkat ini (LocalStorage), tidak tersinkron antar perangkat">' + TB.icon('database', 14) + ' Data lokal · demo</span><div class="notif-wrap"><button class="icon-btn" type="button" id="notif-btn" aria-label="Notifikasi" aria-expanded="false" aria-haspopup="true">' + TB.icon('bell', 22) + '<span class="badge" data-notif-badge hidden>0</span></button><div class="notif-panel" id="notif-panel" hidden></div></div>' + TB.themeButton() + '<span class="top-user">' + TB.icon('user', 16) + TB.esc(user.name) + '</span><button class="btn btn-outline btn-sm" id="logout-top">' + TB.icon('logout', 16) + '<span>Keluar</span></button></div>';
     TB.renderFooter(foot, true);
     function mark() { const cur = (location.pathname.split('/').pop() || 'index.html') + location.hash; const exact = TB.$$('.side-nav a').find(function (a) { return a.getAttribute('data-href') === cur; }); TB.$$('.side-nav a').forEach(function (a) { a.classList.remove('active'); }); const pick = exact || TB.$$('.side-nav a').find(function (a) { return a.getAttribute('data-href') === (location.pathname.split('/').pop() || 'index.html'); }); if (pick) pick.classList.add('active'); }
     mark(); window.addEventListener('hashchange', function () { mark(); closeSide(); });
@@ -618,6 +721,20 @@ window.TB = window.TB || {};
     function out() { TB.auth.logout(); location.href = 'login.html'; } TB.$('#logout-btn').addEventListener('click', out); TB.$('#logout-top').addEventListener('click', out); TB.$('#chgpw-btn').addEventListener('click', function () { TB.auth.openChangePassword(); });
     if (TB.param('denied')) { TB.toast('Anda tidak punya akses ke halaman tersebut.', 'error'); }
     if (user.mustChange && !sessionStorage.getItem('tb_pwnote')) { try { sessionStorage.setItem('tb_pwnote', '1'); } catch (e) { /* abaikan */ } TB.toast('Anda masih memakai password demo. Segera ganti lewat menu "Ganti Password".', 'info'); }
+    /* Lonceng notifikasi */
+    const nb = TB.$('#notif-btn'), np = TB.$('#notif-panel');
+    function fillPanel() {
+      const list = TB.notifs.mine(role).slice(-8).reverse();
+      np.innerHTML = '<div class="np-head"><b>Notifikasi</b><button type="button" class="link-more small" id="np-readall">Tandai semua dibaca</button></div><div class="np-list">' + (list.map(function (n) { return TB.notifItem(n, role); }).join('') || '<div class="empty">Belum ada notifikasi.</div>') + '</div><a class="np-foot" href="notifikasi.html">Lihat semua notifikasi ' + TB.icon('arrow', 14) + '</a>';
+      const ra = TB.$('#np-readall', np); if (ra) ra.addEventListener('click', function () { TB.notifs.markRead('all'); fillPanel(); TB.notifs.badge(); });
+    }
+    if (nb && np) {
+      nb.addEventListener('click', function (e) { e.stopPropagation(); const o = np.hidden; if (o) fillPanel(); np.hidden = !o; nb.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+      np.addEventListener('click', function (e) { const it = e.target.closest('[data-nid]'); if (it) TB.notifs.markRead([it.getAttribute('data-nid')]); });
+      document.addEventListener('click', function (e) { if (!np.hidden && !e.target.closest('.notif-wrap')) { np.hidden = true; nb.setAttribute('aria-expanded', 'false'); } });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !np.hidden) { np.hidden = true; nb.focus(); } });
+    }
+    TB.notifs.badge(); TB.on('notifs', TB.notifs.badge); TB.on('datachange', function (k) { if (/notifs/.test(k || '')) TB.notifs.badge(); }); setInterval(TB.notifs.badge, 30000);
     function tick() { const el = TB.$('#top-clock'); if (el) el.textContent = new Date().toLocaleString('id-ID', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }); } tick(); setInterval(tick, 30000);
   };
 
@@ -657,7 +774,15 @@ window.TB = window.TB || {};
       if (a) { const inp = card && card.querySelector('[data-qin]'); let q = inp ? parseFloat(inp.value) : 0; const p = svc.getProduct(a.getAttribute('data-add')); if (!(q > 0)) q = TB.qtyStep(p); const r = TB.cart.add(a.getAttribute('data-add'), q); TB.toast(r.ok ? 'Ditambahkan ke keranjang.' : r.msg, r.ok ? 'ok' : 'error'); }
     });
   };
-  TB.soldMap = function () { const m = {}; svc.activeTransactions().forEach(function (t) { t.items.forEach(function (i) { m[i.productId] = (m[i.productId] || 0) + i.qty; }); }); return m; };
+  /* Penjualan per produk. Hasil di-cache per sesi dengan tanda tangan data transaksi, agar halaman publik
+     tidak mem-parse seluruh riwayat transaksi (bisa beberapa MB) setiap dibuka. */
+  TB.soldMap = function () {
+    let sig = ''; try { const raw = localStorage.getItem(KEYS.transactions) || ''; sig = raw.length + ':' + raw.slice(-64); } catch (e) { /* abaikan */ }
+    try { const c = sessionStorage.getItem('tb_sold_cache'); if (c && sig) { const o = JSON.parse(c); if (o && o.sig === sig) return o.map; } } catch (e) { /* abaikan */ }
+    const m = {}; svc.activeTransactions().forEach(function (t) { t.items.forEach(function (i) { m[i.productId] = (m[i.productId] || 0) + i.qty; }); });
+    try { sessionStorage.setItem('tb_sold_cache', JSON.stringify({ sig: sig, map: m })); } catch (e) { /* abaikan */ }
+    return m;
+  };
   TB.tablePager = function (el, page, pages, onGo) {
     if (pages <= 1) { el.innerHTML = ''; return; }
     el.innerHTML = '<button class="btn btn-outline btn-sm" data-go="' + (page - 1) + '"' + (page <= 1 ? ' disabled' : '') + '>‹ Sebelumnya</button><span class="small muted">Hal. ' + page + ' / ' + pages + '</span><button class="btn btn-outline btn-sm" data-go="' + (page + 1) + '"' + (page >= pages ? ' disabled' : '') + '>Berikutnya ›</button>';
@@ -712,7 +837,7 @@ window.TB = window.TB || {};
     const body = document.body; const guard = body.getAttribute('data-roles');
     if (guard) { const ok = TB.auth.requireRole(guard.split(',')); if (!ok) return; }
     const shell = body.getAttribute('data-shell');
-    if (shell === 'public') { TB.renderPublicHeader(TB.$('#site-header'), body.getAttribute('data-active')); TB.renderFooter(TB.$('#site-footer')); }
+    if (shell === 'public') { TB.renderPublicHeader(TB.$('#site-header'), body.getAttribute('data-active')); TB.renderFooter(TB.$('#site-footer')); try { const wn = String(store.getSettings().store.whatsapp || '').replace(/\D/g, ''); if (wn.length >= 8 && !document.querySelector('.wa-fab')) { const f = document.createElement('a'); f.className = 'wa-fab'; f.target = '_blank'; f.rel = 'noopener'; f.href = 'https://wa.me/' + wn + '?text=' + encodeURIComponent('Halo, saya ingin bertanya tentang material bangunan.'); f.setAttribute('aria-label', 'Chat WhatsApp toko'); f.innerHTML = TB.icon('wa', 22) + '<span>Tanya via WhatsApp</span>'; document.body.appendChild(f); } } catch (e) { /* abaikan */ } }
     if (shell === 'dash') TB.renderDash({ title: body.getAttribute('data-title') });
     TB.theme.set(TB.theme.get());
     body.classList.remove('guard-pending');

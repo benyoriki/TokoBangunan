@@ -74,6 +74,7 @@ TB.ready(function () {
     else if (cur === 'stok') { const rows = [['SKU', 'Produk', 'Kategori', 'Stok', 'Satuan', 'Stok Min', 'Status']]; stockList().forEach(function (p) { rows.push([p.sku, p.name, catName(p.category), p.stock, p.unit, p.minStock, TB.stockStatus(p).label]); }); TB.downloadCSV('stok-' + d + '.csv', rows); }
     else { const rows = [['Waktu', 'Pengguna', 'Aksi', 'Rincian']]; TB.store.getAudit().forEach(function (a) { rows.push([a.at, a.userName, a.action, a.detail]); }); TB.downloadCSV('audit-' + d + '.csv', rows); }
   });
+  { const q0 = TB.param('q'); if (q0) { $('#l-q').value = q0; $('#l-from').value = ''; } }
   showTab(location.hash.slice(1)); TB.hydrate(document);
   TB.on('datachange', function () { render(); });
 });

@@ -42,20 +42,21 @@
 }
 @media (min-width: 900px) {
   /* Navigasi: navbar atas, tab bar bawah hilang */
-  body[data-shell="public"] { padding-bottom: 0; } .bnav, .mnav, #mnav-btn { display: none !important; }
-  .hdr-row { flex-wrap: nowrap; gap: 18px; padding-top: 14px; padding-bottom: 14px; }
-  .hdr-nav { display: flex; } .hdr-search { order: 0; flex: 1 1 auto; max-width: 540px; margin-left: 4px; } .hdr-actions { order: 0; }
+  body[data-shell="public"] { padding-bottom: 0; } .bnav { display: none !important; }
+  .hdr-row { flex-wrap: nowrap; gap: 16px; padding-top: 14px; padding-bottom: 14px; }
+  .hdr-search { order: 0; flex: 1 1 auto; max-width: 540px; margin-left: 4px; } .hdr-actions { order: 0; }
   .brand b { font-size: 19px; } .brand small { font-size: 11.5px; }
   .hero-inner { grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr); gap: 40px; padding: 56px 20px 84px; }
   .hero p { font-size: 17px; } .hero-cta { margin-top: 24px; }
   .trust-strip { margin-top: -44px; grid-template-columns: repeat(4, minmax(0, 1fr)); } .feat { padding: 18px 20px; border-bottom: 0 !important; border-right: 1px solid var(--line) !important; } .feat:last-child { border-right: 0 !important; } .feat b { font-size: 14.5px; }
   .section { padding: 56px 0; } .sec-head { margin-bottom: 24px; }
+  .cat-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; } .prod-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
   .cat-card { flex-direction: column; text-align: center; padding: 12px 10px 14px; gap: 8px; border-radius: 16px; } .cat-card img { width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; } .cat-card b { font-size: 14px; } .cat-card > span { display: block; }
   .promo-banner { grid-template-columns: auto minmax(0, 1fr) auto; gap: 26px; padding: 26px 32px; } .promo-banner .pb-img { width: 132px; height: 132px; }
   .ship-banner { grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); } .ship-banner .l, .ship-banner .r { padding: 38px; }
   .why-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; } .why { padding: 22px 18px; } .why h3 { font-size: 15.5px; } .why p { font-size: 13.5px; }
   .exp-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-  .proj-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } .proj-card { min-height: 220px; } .proj-card img { width: 100%; right: 0; top: 0; height: 62%; }
+  .proj-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .proj-card { min-height: 200px; } .proj-card img { width: 100%; right: 0; top: 0; height: 62%; }
   .pd-wrap { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 28px; padding: 18px 0 56px; } .pd-info { padding: 28px; } .pd-info h1 { font-size: 30px; }
   .login-split { max-width: 960px; grid-template-columns: minmax(0, .95fr) minmax(0, 1fr); border-radius: 28px; }
   .login-aside { display: flex; flex-direction: column; justify-content: center; background: var(--navy-2); color: #fff; padding: 44px 38px; position: relative; overflow: hidden; }
@@ -84,8 +85,29 @@
   .pos { grid-template-columns: minmax(0, 1fr) 390px; gap: 20px; padding-bottom: 0; } .pos-grid { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); gap: 12px; }
   .pos-cart { position: sticky; top: 84px; transform: none; max-height: calc(100vh - 100px); border-radius: var(--r); box-shadow: var(--shadow-sm); border: 1px solid var(--line); } .pos-pay { border-radius: 0 0 var(--r) var(--r); } .pos-fab { display: none; }
 }
-@media (min-width: 1200px) { .container { padding: 0 24px; } .hero-inner { padding: 64px 24px 92px; } }
+@media (min-width: 1100px) { .mnav, #mnav-btn { display: none !important; } .hdr-row { gap: 18px; } .hdr-nav { display: flex; } }
+@media (min-width: 1200px) { .proj-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } .proj-card { min-height: 220px; } .container { padding: 0 24px; } .hero-inner { padding: 64px 24px 92px; } }
 @media (min-width: 1600px) {
   .container { max-width: 1440px; } .prod-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } .hero h1 { font-size: 62px; } .cat-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 }
-@media (min-width: 900px) and (max-width: 1299px) { .hdr-nav a { padding: 8px 9px; font-size: 13.5px; } .hdr-nav a svg { display: none; } }
+@media (min-width: 1100px) and (max-width: 1299px) { .hdr-nav a { padding: 8px 9px; font-size: 13.5px; } .hdr-nav a svg { display: none; } }
+
+/* Tabel tablet: tombol aksi ditumpuk agar tidak terpotong */
+@media (min-width: 720px) and (max-width: 1199px) { .tbl .actions { white-space: normal; min-width: 104px; } .tbl .actions .btn { display: flex; width: 100%; justify-content: center; margin: 3px 0; } .tbl th, .tbl td { padding-left: 8px; padding-right: 8px; } }
+/* Tombol WhatsApp mengambang */
+.wa-fab { position: fixed; right: 14px; bottom: 78px; z-index: 590; display: inline-flex; align-items: center; gap: 8px; background: #16A34A; color: #fff !important; border-radius: 999px; padding: 0 16px 0 14px; min-height: 48px; font: 700 14px var(--font); box-shadow: 0 10px 28px rgba(22, 163, 74, .38); text-decoration: none !important; transition: transform .2s ease, background .2s; }
+.wa-fab:hover { background: #15803D; transform: translateY(-2px); }
+@media (max-width: 479px) { .wa-fab span { display: none; } .wa-fab { padding: 0; width: 50px; justify-content: center; } }
+@media (min-width: 900px) { .wa-fab { bottom: 24px; right: 24px; } }
+
+/* ===== V2.1: header desktop 2 baris (perbaikan logo bertabrakan dengan menu pada layar 900–1300 px) ===== */
+@media (min-width: 900px) {
+  .hdr-row { flex-wrap: wrap; row-gap: 0; padding-bottom: 0; }
+  .brand { flex: none; } .brand b { white-space: nowrap; }
+  .hdr-search { order: 1; flex: 1 1 280px; max-width: 640px; min-width: 200px; } .hdr-actions { order: 2; flex: none; }
+  .hdr-nav { display: flex !important; order: 3; flex: 1 0 100%; gap: 2px; margin: 8px -6px 0; padding: 2px 0 0; border-top: 1px solid rgba(255, 255, 255, .08); overflow-x: auto; }
+  .hdr-nav a { padding: 10px 14px; font-size: 14px; } .hdr-nav a svg { display: inline-block !important; } .hdr-nav a.active { border-radius: 0; box-shadow: inset 0 -3px 0 var(--orange); background: transparent; }
+  #mnav-btn, .mnav { display: none !important; }
+  .hero-inner { padding-top: 48px; } .hero h1 { font-size: clamp(40px, 4.4vw, 60px); }
+}
+@media (min-width: 900px) { .quick-cats { display: none; } }

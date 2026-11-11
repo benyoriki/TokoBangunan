@@ -27,3 +27,20 @@ Katalog + filter/sort/pagination · keranjang & checkout WhatsApp · estimasi on
 ## Pembaruan loading screen (v2.0.1)
 - Durasi 4 detik, latar blueprint + cahaya oranye, logo dengan animasi atap, 6 "bata" tersusun, bar progres + persen + status, tombol Lewati.
 - Hanya animasi CSS transform/opacity; menghormati prefers-reduced-motion; tampil sekali per sesi.
+
+## v2.0.2
+- Navbar desktop mulai 1100px (di bawahnya hamburger + pencarian satu baris) agar tidak menumpuk di layar 900-1099 / mode desktop HP.
+- Grid kategori 6 kolom & produk 4 kolom mulai 900px; proyek 3x2; tombol aksi tabel ditumpuk di tablet.
+- Tombol WhatsApp mengambang (memakai nomor di Pengaturan), logo di panel login.
+
+## v2.1.0
+- **Preview WhatsApp**: meta Open Graph + Twitter Card di index/katalog/keranjang/produk; gambar `og-image.jpg` (1200x628, 228 KB) dari banner TOKO BANGUNAN. Jika preview lama masih tampil di WhatsApp, kirim link dengan tambahan `?v=2` (WhatsApp menyimpan cache).
+- **Simulasi & Uji Performa** (Pengaturan -> tab baru, `simulasi.js`): generator data 1x/2x/3x beban (default 2x ≈ 70 transaksi/hari), 14-60 hari: transaksi kasir & online, pembatalan, stok berkurang/bertambah (PO supplier, rusak, opname), kas masuk/keluar, notifikasi, audit. Tombol "Kembalikan Data Demo Awal" dan uji performa bawaan.
+- **Notifikasi** (lonceng di dashboard + `notifikasi.html`) dan **Buku Kas** (`kas.html`, owner). Transaksi nyata kini otomatis membuat notifikasi (pesanan baru, stok menipis/habis, pembayaran, pembatalan).
+- **Performa**: `ensureSeed` tidak lagi mem-parse seluruh data tiap halaman; "Terlaris" di beranda memakai cache sesi.
+- **Tampilan**: header desktop 2 baris (memperbaiki logo menabrak menu di layar 900-1300 px), badge hero, poin keunggulan, chip kategori cepat di HP, banner toko di beranda.
+- Catatan: LocalStorage ±5 juta karakter; data 30 hari beban 2x memakai ±3 juta (60%).
+
+## v2.1.1
+- Banner dihapus dari beranda (gambar hanya dipakai sebagai preview WhatsApp: `og-image.jpg`).
+- Data simulasi (beban 2x, 30 hari: transaksi, stok, kas, notifikasi) kini **otomatis aktif** saat website dibuka pertama kali dan disegarkan 1x per hari selama semua transaksi masih data demo. Matikan dengan `AUTO_SIM: false` di `data.js` sebelum dipakai sungguhan.

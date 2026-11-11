@@ -1,7 +1,7 @@
 /* sw.js — Service worker sederhana (opsional): cache aset statis agar cepat & bisa dibuka offline.
    Data toko tetap di LocalStorage. Naikkan VERSION saat memperbarui file agar cache diganti. */
-const VERSION = 'tb-v2.0.1';
-const ASSETS = ['./', 'index.html', 'katalog.html', 'produk.html', 'keranjang.html', 'login.html', 'kasir.html', 'admin-stok.html', 'owner.html', 'laporan.html', 'pengaturan.html',
+const VERSION = 'tb-v2.1.0';
+const ASSETS = ['./', 'index.html', 'katalog.html', 'produk.html', 'keranjang.html', 'login.html', 'kasir.html', 'admin-stok.html', 'owner.html', 'laporan.html', 'pengaturan.html', 'kas.html', 'notifikasi.html', 'kas.js', 'notifikasi.js', 'simulasi.js', 'og-image.jpg',
   'style.css', 'responsive.css', 'art.js', 'produk.js', 'assets/hero.webp', 'app.js', 'data.js', 'auth.js', 'home.js', 'katalog.js', 'keranjang.js', 'login.js', 'kasir.js', 'admin-stok.js', 'owner.js', 'laporan.js', 'pengaturan.js',
   'qris.png', 'icon.svg', 'icon-192.png', 'icon-512.png', 'manifest.json'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())); });
