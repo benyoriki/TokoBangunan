@@ -44,3 +44,7 @@ Katalog + filter/sort/pagination · keranjang & checkout WhatsApp · estimasi on
 ## v2.1.1
 - Banner dihapus dari beranda (gambar hanya dipakai sebagai preview WhatsApp: `og-image.jpg`).
 - Data simulasi (beban 2x, 30 hari: transaksi, stok, kas, notifikasi) kini **otomatis aktif** saat website dibuka pertama kali dan disegarkan 1x per hari selama semua transaksi masih data demo. Matikan dengan `AUTO_SIM: false` di `data.js` sebelum dipakai sungguhan.
+
+## v2.2.0
+- Perbaikan upgrade: service worker kini memuat file terbaru (no-cache) sehingga browser lama otomatis memakai simulasi baru (±2.000 transaksi, kas, notifikasi). Simulasi tidak menimpa data jika sudah ada transaksi nyata (demo:false); gunakan Pengaturan → Simulasi untuk memaksa.
+- POS lebih padat (gambar lebih pendek, 3 kolom di tablet), tipografi judul lebih rapat.

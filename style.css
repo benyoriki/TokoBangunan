@@ -336,3 +336,19 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .hero h1 { text-shadow: none; } .hero-media { box-shadow: 0 24px 60px rgba(0, 0, 0, .4), 0 0 0 1px rgba(255, 118, 38, .18); }
 .stat-line { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 18px 0 0; padding: 0; list-style: none; } .stat-line li { color: #aebdd0; font-size: 12.5px; } .stat-line b { display: block; color: #fff; font: 800 20px var(--font-h); }
 .np-head .link-more { background: none; border: 0; cursor: pointer; padding: 4px 0; font-family: var(--font); } .stat b { overflow-wrap: anywhere; }
+
+/* ===== V2.2 — POS lebih padat, kartu produk lebih rapi (ringan, tanpa blur) ===== */
+.pos-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pos-item { border-radius: 12px; }
+.pos-item img { aspect-ratio: 16/10; }
+.pos-item .b { padding: 7px 9px 9px; }
+.pos-item .n { font-size: 12.5px; min-height: 31px; }
+.pos-item .p { font-size: 13.5px; }
+.pos-item .s { font-size: 11px; }
+@media (max-width: 899px) and (min-width: 480px) { .pos-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 479px) { .pos-item img { aspect-ratio: 2/1; } }
+.login-wrap { min-height: 100vh; }
+.login-card h1 { letter-spacing: -.02em; }
+.login-split { border: 1px solid rgba(255, 255, 255, .08); }
+h1, h2, h3 { letter-spacing: -.015em; }
+.section-head h2, .sec-head h2 { letter-spacing: -.02em; }

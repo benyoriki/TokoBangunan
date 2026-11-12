@@ -8,7 +8,7 @@ window.TB = window.TB || {};
 TB.CONFIG = {
   APP_NAME: 'TOKO BANGUNAN',
   TAGLINE: 'Semua Kebutuhan Bangunan, Harga Terbaik, Pengiriman Tepat.',
-  VERSION: '2.1.0',
+  VERSION: '2.2.0',
   KEY_PREFIX: 'tb_',
   SESSION_HOURS: 8,
   LOADER_MS: 4000,            // lama loading screen (milidetik) — V1: 3000

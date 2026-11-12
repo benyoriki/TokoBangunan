@@ -146,13 +146,13 @@ window.TB = window.TB || {};
     /* Data simulasi otomatis (beban 2x, 30 hari) bila belum ada transaksi, atau disegarkan 1x per hari
        selama semua transaksi masih data demo (tidak pernah menimpa transaksi nyata / pilihan manual). */
     function autoSim() {
-      if (!TB.CONFIG.AUTO_SIM || !TB.sim) return false;
+      if (TB.CONFIG.AUTO_SIM === false || !TB.sim) return false;
       try { const d = TB.sim.generate({ days: 30, load: 2 }); TB.sim.apply(d); writeKey(KEYS.seeded, { at: new Date().toISOString(), version: TB.CONFIG.VERSION, sim: true, day: TB.dateKey(new Date()) }); return true; } catch (e) { console.error(e); return false; }
     }
     if (!hasArray(KEYS.transactions)) {
       if (autoSim()) seededNow = true;
       else { const demo = TB.buildDemoTransactions(prods); writeKey(KEYS.transactions, demo.txns); writeKey(KEYS.counters, demo.counters); seededNow = true; }
-    } else if (TB.CONFIG.AUTO_SIM && TB.sim) {
+    } else if (TB.CONFIG.AUTO_SIM !== false && TB.sim) {
       const sd = readKey(KEYS.seeded, null) || {}; let allDemo = false; try { allDemo = (localStorage.getItem(KEYS.transactions) || '').indexOf('"demo":false') < 0; } catch (e) { /* abaikan */ }
       if (allDemo && !sd.manual && (!sd.sim || sd.day !== TB.dateKey(new Date()))) { autoSim(); prods = readKey(KEYS.products, prods) || prods; }
     }
